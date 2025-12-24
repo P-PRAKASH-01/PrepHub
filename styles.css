@@ -1330,15 +1330,6 @@ body::before {
     color: var(--color-text-secondary);
   }
 
-  .nav-link:hover {
-    background: var(--color-bg-tertiary);
-    padding-left: var(--spacing-2xl);
-  }
-
-  .nav-link.active {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--color-primary-light);
-  }
 
   .logo {
     font-size: 1.125rem;
@@ -1526,7 +1517,7 @@ body::before {
 
   .nav-link {
     font-size: 0.6875rem;
-    padding: 4px;
+    padding: 5px;
   }
 
   .stat-value {
@@ -1675,38 +1666,50 @@ body::before {
   background: var(--color-primary-light);
   opacity: 1;
 }
+
 /* =====================================
-   Mobile Hamburger Menu – Spacing & X Fix
+   MOBILE NAV OVERRIDE (SAFE & FINAL)
    ===================================== */
 @media (max-width: 1024px) {
 
-  /* More vertical space between nav items */
-  .nav-link {
-    padding: 20px var(--spacing-xl);
-    margin-bottom: 10px;
-  }
-
-  /* Remove hover animation on mobile */
-  .nav-link:hover {
-    background: none !important;
-    padding-left: var(--spacing-xl) !important;
-  }
-
-  /* Active link highlight stays */
-  .nav-link.active {
-    background: rgba(99, 102, 241, 0.18);
-    color: var(--color-primary-light);
-  }
-
-  /* Add space inside dropdown container */
+  /* Overlay menu */
   .nav-links.active {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: rgba(13, 15, 23, 0.98);
+    backdrop-filter: blur(16px);
+    padding: 32px 0;
+    z-index: 3000;
   }
 
-  /* Fix ❌ (hamburger active) visibility */
+  /* Clean vertical spacing */
+  .nav-link {
+    margin: 16px 32px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+
+  /* NO hover on mobile */
+  .nav-link:hover {
+    background: transparent !important;
+    padding-left: 20px !important;
+    color: var(--color-text-secondary) !important;
+  }
+
+  /* NO active highlight on mobile */
+  .nav-link.active {
+    background: transparent !important;
+    color: var(--color-text-secondary) !important;
+  }
+
+  /* X icon visibility */
   .hamburger.active {
-    background: rgba(19, 21, 28, 0.85);
+    background: rgba(19, 21, 28, 0.9);
     border-radius: 50%;
   }
 }
+
