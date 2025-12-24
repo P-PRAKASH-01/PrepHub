@@ -8,14 +8,15 @@ const CACHE_NAME = `prephub-${CACHE_VERSION}`;
 
 // Files to cache immediately on install
 const STATIC_CACHE_URLS = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/script.js',
-    '/manifest.json',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png'
+    './',
+    './index.html',
+    './styles.css',
+    './script.js',
+    './manifest.json',
+    './icons/icon-192.png',
+    './icons/icon-512.png'
 ];
+
 
 // ===================================
 // Install Event - Cache Static Assets
@@ -112,7 +113,8 @@ self.addEventListener('fetch', (event) => {
 
                         // Return offline page for navigation requests
                         if (request.mode === 'navigate') {
-                            return caches.match('/index.html');
+                            return caches.match('./index.html');
+
                         }
 
                         throw error;
