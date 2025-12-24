@@ -210,6 +210,9 @@ body::before {
   padding: var(--spacing-sm);
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 99999; /* ensure hamburger button sits above dropdown */
+  transform: translateZ(0); /* create new layer to avoid stacking bugs */
 }
 
 .hamburger-line {
@@ -219,6 +222,8 @@ body::before {
   border-radius: var(--radius-sm);
   transition: all var(--transition-base);
   transform-origin: center;
+  position: relative;
+  z-index: 100000; /* lines should be above the button background and dropdown */
 }
 
 .hamburger.active .hamburger-line:nth-child(1) {
@@ -1054,6 +1059,9 @@ body::before {
   .hamburger {
     display: flex;
     order: 2;
+    /* ensure hamburger sits above the dropdown when transformed to X */
+    position: relative;
+    z-index: 99999; /* higher to be above dropdown and other elements */
   }
 
   /* Nav Links - Hide by default, show when active */
@@ -1068,10 +1076,10 @@ body::before {
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     flex-direction: column;
-    gap: 0;
+    gap: var(--spacing-md);
     padding: var(--spacing-lg) 0;
     list-style: none;
-    z-index: 999;
+    z-index: 900; /* keep dropdown below the hamburger */
   }
 
   .nav-links.active {
@@ -1101,14 +1109,13 @@ body::before {
     color: var(--color-text-secondary);
   }
 
-  .nav-link:hover {
-    background: var(--color-bg-tertiary);
-    padding-left: var(--spacing-2xl);
-  }
-
+  /* Remove hover/active visual changes on mobile/tablet for simpler tap targets */
+  .nav-link:hover,
+  .nav-link:active,
   .nav-link.active {
-    background: rgba(99, 102, 241, 0.15);
-    color: var(--color-primary-light);
+    background: none;
+    color: var(--color-text-secondary);
+    padding-left: var(--spacing-lg);
   }
 
   .logo {
@@ -1282,6 +1289,8 @@ body::before {
   .hamburger {
     display: flex;
     order: 2;
+    position: relative;
+    z-index: 99999; /* ensure X icon appears above dropdown */
   }
 
   /* Nav Links - Mobile dropdown */
@@ -1296,11 +1305,11 @@ body::before {
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
     flex-direction: column;
-    gap: 0;
+    gap: var(--spacing-md);
     padding: var(--spacing-lg) 0;
     list-style: none;
     width: 100%;
-    z-index: 999;
+    z-index: 900; /* ensure dropdown stays below hamburger */
   }
 
   .nav-links.active {
@@ -1330,6 +1339,13 @@ body::before {
     color: var(--color-text-secondary);
   }
 
+  /* Disable hover/active visuals on small screens for clearer tap targets */
+  .nav-link:hover,
+  .nav-link:active,
+  .nav-link.active {
+    background: none;
+    color: var(--color-text-secondary);
+  }
 
   .logo {
     font-size: 1.125rem;
