@@ -1,39 +1,17 @@
 <div align="center">
 
+[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![PWA](https://img.shields.io/badge/PWA-2F2F2F?style=flat&logo=googlechrome&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
+[![App](https://img.shields.io/badge/App-4CAF50?style=flat&logo=android&logoColor=white)](https://developer.mozilla.org/en-US/docs/Glossary/App)
+
 # 🎯 PrepHub - Student Preparation Portal
 
 ### *Your Ultimate Internship & Job Preparation Companion*
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
-[![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
-[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
-
-**A modern, student-focused web application designed to help you prepare for internships and job opportunities by tracking companies, analyzing skill gaps, and monitoring your preparation progress.**
-
-[🚀 Live Demo](#) | [📖 Documentation](#usage-guide) | [🐛 Report Bug](https://github.com/P-PRAKASH-01/Student-preparation-Portal/issues) | [💡 Request Feature](https://github.com/P-PRAKASH-01/Student-preparation-Portal/issues)
-
-</div>
 
 ---
-
-## 📋 Table of Contents
-
-- [Overview](#-overview)
-- [Features](#-features)
-- [Screenshots](#-screenshots)
-- [Technologies Used](#-technologies-used)
-- [Getting Started](#-getting-started)
-- [Usage Guide](#-usage-guide)
-- [Project Structure](#-project-structure)
-- [Design Philosophy](#-design-philosophy)
-- [FAQ](#-faq)
-- [Troubleshooting](#-troubleshooting)
-- [Roadmap](#-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
-- [Contact](#-contact)
 
 ---
 
