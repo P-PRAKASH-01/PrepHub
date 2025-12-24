@@ -1668,48 +1668,35 @@ body::before {
 }
 
 /* =====================================
-   MOBILE NAV OVERRIDE (SAFE & FINAL)
+   FORCE SPACE: Mobile Nav Item Height
    ===================================== */
 @media (max-width: 1024px) {
 
-  /* Overlay menu */
   .nav-links.active {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: rgba(13, 15, 23, 0.98);
-    backdrop-filter: blur(16px);
-    padding: 32px 0;
-    z-index: 3000;
+    padding-top: 24px;
+    padding-bottom: 24px;
   }
 
-  /* Clean vertical spacing */
   .nav-link {
-    margin: 16px 32px;
-    padding: 16px 20px;
-    border-radius: 12px;
+    min-height: 64px;          /* 👈 FORCE vertical space */
+    display: flex;
+    align-items: center;       /* center text vertically */
+    padding-left: 24px;
+    padding-right: 24px;
+    margin: 12px 32px;
     background: transparent;
     color: var(--color-text-secondary);
   }
 
-  /* NO hover on mobile */
+  /* Disable hover completely */
   .nav-link:hover {
     background: transparent !important;
-    padding-left: 20px !important;
     color: var(--color-text-secondary) !important;
   }
 
-  /* NO active highlight on mobile */
+  /* Disable active completely */
   .nav-link.active {
     background: transparent !important;
     color: var(--color-text-secondary) !important;
   }
-
-  /* X icon visibility */
-  .hamburger.active {
-    background: rgba(19, 21, 28, 0.9);
-    border-radius: 50%;
-  }
 }
-
