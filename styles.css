@@ -1675,3 +1675,33 @@ body::before {
   background: var(--color-primary-light);
   opacity: 1;
 }
+
+/* ================================
+   FIX: Mobile / Tablet Hamburger Menu
+   ================================ */
+@media (max-width: 1024px) {
+
+  /* Give space around hamburger menu dropdown */
+  .nav-links.active {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Remove hover animation & shift on mobile */
+  .nav-link:hover {
+    background: transparent !important;
+    padding-left: var(--spacing-xl) !important;
+  }
+
+  /* Keep active item highlighted but clean */
+  .nav-link.active {
+    background: rgba(99, 102, 241, 0.18);
+    color: var(--color-primary-light);
+  }
+
+  /* Improve touch spacing between links */
+  .nav-link {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}
