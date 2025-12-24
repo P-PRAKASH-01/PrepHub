@@ -9,6 +9,27 @@
     <meta name="keywords"
         content="student internship, job preparation, skill gap analysis, career preparation, skill tracking">
     <title>PrepHub - Master Your Career Preparation</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#6366f1">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
+
+    <!-- iOS Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PrepHub">
+
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#6366f1">
+    <meta name="msapplication-TileImage" content="icons/icon-512.png">
+
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -21,12 +42,20 @@
                 <div class="logo-icon">P</div>
                 <span>PrepHub</span>
             </div>
-            <ul class="nav-links">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#" class="nav-link active" data-view="dashboard">📊 Dashboard</a></li>
                 <li><a href="#" class="nav-link" data-view="companies">🏢 Companies</a></li>
                 <li><a href="#" class="nav-link" data-view="skills">🎯 Skill Gap</a></li>
                 <li><a href="#" class="nav-link" data-view="progress">📈 Progress</a></li>
             </ul>
+            <button id="settingsBtn" class="settings-btn">
+                <span>⚙️</span>
+            </button>
         </div>
     </nav>
 
@@ -53,30 +82,41 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="dashboard-stats">
-                <div class="stat-card">
-                    <div class="stat-icon">🏢</div>
-                    <div class="stat-value" id="totalCompanies"></div>
-                    <div class="stat-label">Companies Tracked</div>
+            <div class="stats-carousel-wrapper">
+                <div class="dashboard-stats" id="statsCarousel">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏢</div>
+                        <div class="stat-value" id="totalCompanies"></div>
+                        <div class="stat-label">Companies Tracked</div>
+                    </div>
+
+                    <div class="stat-card secondary">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-value" id="favoriteCount"></div>
+                        <div class="stat-label">Favorites</div>
+                    </div>
+
+                    <div class="stat-card success">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-value" id="skillsNeeded"></div>
+                        <div class="stat-label">Skills to Master</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-value" id="overallProgress"></div>
+                        <div class="stat-label">Overall Progress</div>
+                    </div>
                 </div>
 
-                <div class="stat-card secondary">
-                    <div class="stat-icon">⭐</div>
-                    <div class="stat-value" id="favoriteCount"></div>
-                    <div class="stat-label">Favorites</div>
+                <!-- Carousel Dot Indicators (for mobile/tablet) -->
+                <div class="carousel-dots" id="carouselDots">
+                    <button class="dash active" data-slide="0"></button>
+                    <button class="dash" data-slide="1"></button>
+                    <button class="dash" data-slide="2"></button>
+                    <button class="dash" data-slide="3"></button>
                 </div>
 
-                <div class="stat-card success">
-                    <div class="stat-icon">🎯</div>
-                    <div class="stat-value" id="skillsNeeded"></div>
-                    <div class="stat-label">Skills to Master</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon">📈</div>
-                    <div class="stat-value" id="overallProgress"></div>
-                    <div class="stat-label">Overall Progress</div>
-                </div>
             </div>
 
             <!-- Quick Actions -->

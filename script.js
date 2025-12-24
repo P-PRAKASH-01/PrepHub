@@ -14,27 +14,244 @@ let appState = {
   userSkills: [] // Skills the student already has
 };
 
-
-
 // ===================================
-// LocalStorage Management
+// LocalStorage Management (Enhanced)
 // ===================================
+
+const STORAGE_KEY = 'prepHubState';
+const STORAGE_VERSION = '1.0';
+
+// Auto-save debounce timer
+let autoSaveTimer = null;
 
 function saveToLocalStorage() {
-  localStorage.setItem('prepHubState', JSON.stringify(appState));
+  try {
+    const dataToSave = {
+      version: STORAGE_VERSION,
+      timestamp: new Date().toISOString(),
+      data: appState
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    console.log('[Storage] Data saved successfully');
+    return true;
+  } catch (error) {
+    console.error('[Storage] Failed to save data:', error);
+    // Handle quota exceeded error
+    if (error.name === 'QuotaExceededError') {
+      alert('Storage limit reached. Please export and clear old data.');
+    }
+    return false;
+  }
+}
+
+// Auto-save with debounce to prevent excessive writes
+function autoSave() {
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    saveToLocalStorage();
+  }, 500); // Save 500ms after last change
 }
 
 function loadFromLocalStorage() {
-  const saved = localStorage.getItem('prepHubState');
-  if (saved) {
-    appState = JSON.parse(saved);
-  } else {
-    // Initialize with empty data
-    appState.companies = [];
-    appState.userSkills = [];
-    saveToLocalStorage();
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+
+      // Validate data structure
+      if (parsed.data && validateAppState(parsed.data)) {
+        appState = parsed.data;
+        console.log('[Storage] Data loaded successfully from version:', parsed.version);
+
+        // Migrate if needed
+        if (parsed.version !== STORAGE_VERSION) {
+          console.log('[Storage] Migrating data from', parsed.version, 'to', STORAGE_VERSION);
+          migrateData(parsed.version);
+          saveToLocalStorage();
+        }
+      } else {
+        console.warn('[Storage] Invalid data structure, using defaults');
+        initializeDefaultState();
+      }
+    } else {
+      console.log('[Storage] No saved data found, initializing defaults');
+      initializeDefaultState();
+    }
+  } catch (error) {
+    console.error('[Storage] Failed to load data:', error);
+    initializeDefaultState();
   }
 }
+
+function validateAppState(state) {
+  return (
+    state &&
+    typeof state === 'object' &&
+    Array.isArray(state.companies) &&
+    Array.isArray(state.userSkills) &&
+    typeof state.currentView === 'string'
+  );
+}
+
+function initializeDefaultState() {
+  appState.companies = [];
+  appState.userSkills = [];
+  appState.currentView = 'dashboard';
+  appState.currentCompany = null;
+  saveToLocalStorage();
+}
+
+function migrateData(fromVersion) {
+  // Future version migration logic
+  console.log('[Storage] Migration from', fromVersion, 'complete');
+}
+
+// Export data as JSON file
+function exportData() {
+  try {
+    const dataToExport = {
+      version: STORAGE_VERSION,
+      exportDate: new Date().toISOString(),
+      appName: 'PrepHub',
+      data: appState
+    };
+
+    const dataStr = JSON.stringify(dataToExport, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `prephub-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    showNotification('Data exported successfully!', 'success');
+    return true;
+  } catch (error) {
+    console.error('[Export] Failed to export data:', error);
+    showNotification('Failed to export data', 'error');
+    return false;
+  }
+}
+
+// Import data from JSON file
+function importData(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target.result);
+
+        // Validate imported data
+        if (!imported.data || !validateAppState(imported.data)) {
+          throw new Error('Invalid data format');
+        }
+
+        // Confirm before importing
+        const confirmMsg = `Import data from ${new Date(imported.exportDate).toLocaleDateString()}?\n\nThis will replace your current data:\n- ${imported.data.companies.length} companies\n- ${imported.data.userSkills.length} skills\n\nCurrent data will be lost unless you export it first.`;
+
+        if (confirm(confirmMsg)) {
+          appState = imported.data;
+          saveToLocalStorage();
+          showNotification('Data imported successfully!', 'success');
+
+          // Refresh current view
+          switchView(appState.currentView || 'dashboard');
+          resolve(true);
+        } else {
+          resolve(false);
+        }
+      } catch (error) {
+        console.error('[Import] Failed to import data:', error);
+        showNotification('Failed to import data. Invalid file format.', 'error');
+        reject(error);
+      }
+    };
+
+    reader.onerror = () => {
+      reject(new Error('Failed to read file'));
+    };
+
+    reader.readAsText(file);
+  });
+}
+
+// Clear all data
+function clearAllData() {
+  const confirm1 = confirm('⚠️ WARNING: This will delete ALL your data!\n\nAre you sure you want to continue?');
+  if (!confirm1) return false;
+
+  const confirm2 = confirm('This action cannot be undone!\n\nClick OK to permanently delete all data.');
+  if (!confirm2) return false;
+
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+    initializeDefaultState();
+    showNotification('All data cleared', 'success');
+    switchView('dashboard');
+    return true;
+  } catch (error) {
+    console.error('[Storage] Failed to clear data:', error);
+    showNotification('Failed to clear data', 'error');
+    return false;
+  }
+}
+
+// Get storage usage info
+function getStorageInfo() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    const bytes = new Blob([data || '']).size;
+    const kb = (bytes / 1024).toFixed(2);
+    const mb = (bytes / 1024 / 1024).toFixed(2);
+
+    return {
+      bytes,
+      kb,
+      mb,
+      companiesCount: appState.companies.length,
+      skillsCount: appState.userSkills.length
+    };
+  } catch (error) {
+    console.error('[Storage] Failed to get storage info:', error);
+    return null;
+  }
+}
+
+// Notification helper
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: ${type === 'success' ? 'var(--color-success)' : type === 'error' ? 'var(--color-danger)' : 'var(--color-primary-light)'};
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    z-index: 10000;
+    animation: slideIn 0.3s ease-out;
+    font-weight: 600;
+  `;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = 'slideOut 0.3s ease-in';
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
 
 // ===================================
 // View Management
@@ -636,6 +853,209 @@ function handleUpdateSkills(event) {
 }
 
 // ===================================
+// Settings Modal
+// ===================================
+
+function showSettingsModal() {
+  const modal = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+
+  const storageInfo = getStorageInfo();
+  const isInstallable = deferredPrompt !== null;
+
+  content.innerHTML = `
+    <div style="margin-bottom: var(--spacing-lg);">
+      <h2 style="font-size: 1.75rem; margin-bottom: var(--spacing-sm);">⚙️ Settings</h2>
+      <p style="color: var(--color-text-secondary);">Manage your data and app preferences</p>
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: var(--spacing-lg);">
+      ${storageInfo ? `
+        <div style="background: var(--color-bg-tertiary); border-radius: var(--radius-lg); padding: var(--spacing-lg);">
+          <h3 style="font-size: 1.125rem; margin-bottom: var(--spacing-md);">📊 Storage Information</h3>
+          <div style="display: grid; gap: var(--spacing-sm); color: var(--color-text-secondary);">
+            <div><strong>Companies Tracked:</strong> ${storageInfo.companiesCount}</div>
+            <div><strong>Skills Defined:</strong> ${storageInfo.skillsCount}</div>
+            <div><strong>Storage Used:</strong> ${storageInfo.kb} KB</div>
+            <div><strong>App Version:</strong> ${STORAGE_VERSION}</div>
+          </div>
+        </div>
+      ` : ''}
+      
+      ${isInstallable ? `
+        <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-lg); padding: var(--spacing-lg);">
+          <h3 style="font-size: 1.125rem; margin-bottom: var(--spacing-md); color: var(--color-success);">📱 Install as App</h3>
+          <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md); font-size: 0.875rem;">
+            Install PrepHub on your device for quick access and offline use. Works like a native app!
+          </p>
+          <button class="btn btn-primary" id="installBtnModal" onclick="handleInstallClick();" style="background: var(--gradient-success);">
+            <span>📱</span>
+            <span>Install PrepHub</span>
+          </button>
+        </div>
+      ` : ''}
+      
+      <div style="background: var(--color-bg-tertiary); border-radius: var(--radius-lg); padding: var(--spacing-lg);">
+        <h3 style="font-size: 1.125rem; margin-bottom: var(--spacing-md);">💾 Data Management</h3>
+        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md); font-size: 0.875rem;">
+          Export your data for backup or import previously exported data.
+        </p>
+        <div style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="exportData(); closeModal();">
+            <span>📤</span>
+            <span>Export Data</span>
+          </button>
+          <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click();">
+            <span>📥</span>
+            <span>Import Data</span>
+          </button>
+          <input type="file" id="importFileInput" accept=".json" style="display: none;" 
+                 onchange="handleImportFile(this.files[0])">
+        </div>
+      </div>
+      
+      <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-lg); padding: var(--spacing-lg);">
+        <h3 style="font-size: 1.125rem; margin-bottom: var(--spacing-md); color: var(--color-danger);">⚠️ Danger Zone</h3>
+        <p style="color: var(--color-text-secondary); margin-bottom: var(--spacing-md); font-size: 0.875rem;">
+          Permanently delete all your data. This action cannot be undone.
+        </p>
+        <button class="btn btn-outline" style="border-color: var(--color-danger); color: var(--color-danger);" 
+                onclick="clearAllData(); closeModal();">
+          <span>🗑️</span>
+          <span>Clear All Data</span>
+        </button>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; margin-top: var(--spacing-md);">
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  `;
+
+  modal.classList.remove('hidden');
+}
+
+function handleImportFile(file) {
+  if (file) {
+    importData(file)
+      .then(() => {
+        closeModal();
+      })
+      .catch((error) => {
+        console.error('Import error:', error);
+      });
+  }
+}
+
+// ===================================
+// PWA Installation
+// ===================================
+
+let deferredPrompt = null;
+
+// Capture the install prompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('[PWA] Install prompt available');
+  e.preventDefault();
+  deferredPrompt = e;
+  // Install button is now in settings modal, no need to show navbar button
+});
+
+// Handle install button click
+function handleInstallClick() {
+  if (!deferredPrompt) {
+    console.log('[PWA] Install prompt not available');
+    showNotification('App is already installed or not installable', 'info');
+    return;
+  }
+
+  // Show the install prompt
+  deferredPrompt.prompt();
+
+  // Wait for user choice
+  deferredPrompt.userChoice.then((choiceResult) => {
+    if (choiceResult.outcome === 'accepted') {
+      console.log('[PWA] User accepted the install prompt');
+      showNotification('App installed successfully!', 'success');
+      closeModal(); // Close settings modal after install
+    } else {
+      console.log('[PWA] User dismissed the install prompt');
+    }
+    deferredPrompt = null;
+  });
+}
+
+// Detect if app is already installed
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App was installed');
+  showNotification('PrepHub installed! You can now use it offline.', 'success');
+  deferredPrompt = null;
+});
+
+// ===================================
+// Service Worker Registration
+// ===================================
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then((registration) => {
+        console.log('[PWA] Service Worker registered successfully:', registration.scope);
+
+        // Check for updates
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          console.log('[PWA] New Service Worker found');
+
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('[PWA] New version available');
+              showNotification('App update available! Refresh to get the latest version.', 'info');
+            }
+          });
+        });
+      })
+      .catch((error) => {
+        console.error('[PWA] Service Worker registration failed:', error);
+      });
+  });
+}
+
+// ===================================
+// Online/Offline Detection
+// ===================================
+
+window.addEventListener('online', () => {
+  console.log('[Network] Online');
+  showNotification('Back online!', 'success');
+});
+
+window.addEventListener('offline', () => {
+  console.log('[Network] Offline');
+  showNotification('You are offline. Data will be saved locally.', 'info');
+});
+
+// ===================================
+// Hamburger Menu Toggle (Mobile/Tablet)
+// ===================================
+
+function toggleHamburgerMenu() {
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+
+  hamburger.classList.toggle('active');
+  navLinks.classList.toggle('active');
+}
+
+function closeHamburgerMenu() {
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('navLinks');
+
+  hamburger.classList.remove('active');
+  navLinks.classList.remove('active');
+}
+
+// ===================================
 // Event Listeners
 // ===================================
 
@@ -643,10 +1063,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load data from localStorage
   loadFromLocalStorage();
 
-  // Set up navigation
+  // Hamburger menu toggle
+  const hamburger = document.getElementById('hamburger');
+  if (hamburger) {
+    hamburger.addEventListener('click', toggleHamburgerMenu);
+  }
+
+  // Close menu when a nav link is clicked
   document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
+      closeHamburgerMenu(); // Close mobile menu
       const view = link.dataset.view;
       if (view) {
         switchView(view);
@@ -673,6 +1100,12 @@ document.addEventListener('DOMContentLoaded', () => {
     addCompanyCard.addEventListener('click', showAddCompanyModal);
   }
 
+  // Settings button
+  const settingsBtn = document.getElementById('settingsBtn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', showSettingsModal);
+  }
+
   // Close modal on overlay click
   document.getElementById('modalOverlay').addEventListener('click', (e) => {
     if (e.target.id === 'modalOverlay') {
@@ -680,6 +1113,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+// ===============================
+// Stats Carousel Logic (SAFE)
+// ===============================
+document.addEventListener('DOMContentLoaded', () => {
+
+  const statsCarousel = document.getElementById('statsCarousel');
+  const dashes = document.querySelectorAll('.carousel-dots .dash');
+
+  // Exit safely if dashboard not loaded
+  if (!statsCarousel || dashes.length === 0) return;
+
+  function goToSlide(index) {
+    const width = statsCarousel.clientWidth;
+    statsCarousel.scrollTo({
+      left: width * index,
+      behavior: 'smooth'
+    });
+
+    dashes.forEach(d => d.classList.remove('active'));
+    dashes[index].classList.add('active');
+  }
+
+  dashes.forEach((dash, index) => {
+    dash.addEventListener('click', () => goToSlide(index));
+  });
+
+});
+
+
+
   // Initial render
   renderDashboard();
+
+  // Auto-save every 30 seconds as a safety measure
+  setInterval(() => {
+    saveToLocalStorage();
+  }, 30000);
 });
