@@ -5,10 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Redirecting...</title>
     <script>
-        // GitHub Pages SPA redirect: send all 404s back to index.html
-        // Preserve the original path as a query parameter
-        const path = window.location.pathname.replace(/^\/[^\/]+/, ''); // Remove repo name from path
-        window.location.replace('/Student-preparation-Portal/index.html?redirect=' + encodeURIComponent(path));
+        // GitHub Pages / Live Server SPA redirect: send all 404s back to index.html
+        // Preserve the requested path for client-side routing
+        const path = window.location.pathname.split('/').pop(); // Get last segment
+        const hash = window.location.hash || '';
+        const search = window.location.search || '';
+        
+        // Redirect to index.html while preserving the route for client-side handling
+        window.location.replace('./index.html' + (search ? search + '&' : '?') + 'redirect=' + encodeURIComponent(window.location.pathname) + hash);
     </script>
 </head>
 <body>
