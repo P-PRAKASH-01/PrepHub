@@ -5,6 +5,7 @@
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![PWA](https://img.shields.io/badge/PWA-2F2F2F?style=flat&logo=googlechrome&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
 [![App](https://img.shields.io/badge/App-4CAF50?style=flat&logo=android&logoColor=white)](https://developer.mozilla.org/en-US/docs/Glossary/App)
+</div>
 
 # 🎯 PrepHub - Student Preparation Portal
 
