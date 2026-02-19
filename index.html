@@ -52,6 +52,8 @@
                 <li><a href="#" class="nav-link" data-view="companies">🏢 Companies</a></li>
                 <li><a href="#" class="nav-link" data-view="skills">🎯 Skill Gap</a></li>
                 <li><a href="#" class="nav-link" data-view="progress">📈 Progress</a></li>
+                <li><a href="#" class="nav-link" data-view="jobs">💼 Jobs</a></li>
+                <li><a href="#" class="nav-link" data-view="jdanalyzer">🔍 JD Analyzer</a></li>
             </ul>
             <button id="settingsBtn" class="settings-btn">
                 <span>⚙️</span>
@@ -232,6 +234,177 @@
                 <div class="empty-icon">📈</div>
                 <h3>Start Your Preparation Journey</h3>
                 <p>As you add companies and work on skills, your progress will be tracked here.</p>
+            </div>
+        </div>
+
+
+        <!-- Jobs View -->
+        <div id="jobsView" class="view-container hidden">
+            <div class="section-header">
+                <h2 class="section-title">💼 Job Listings</h2>
+                <button class="btn btn-secondary" onclick="switchView('dashboard')">
+                    <span>←</span>
+                    <span>Back to Dashboard</span>
+                </button>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="jobs-search-bar" id="jobsSearchBar">
+                <div class="jobs-search-inputs">
+                    <div class="search-input-wrap">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="jobKeyword" placeholder="Job title, skills, keywords..."
+                            class="jobs-search-input" />
+                    </div>
+                    <div class="search-input-wrap">
+                        <span class="search-icon">📍</span>
+                        <input type="text" id="jobLocation" placeholder="Location (e.g. India, Remote)"
+                            class="jobs-search-input" value="India" />
+                    </div>
+                    <select id="jobCountry" class="jobs-select">
+                        <option value="in">🇮🇳 India</option>
+                        <option value="gb">🇬🇧 UK</option>
+                        <option value="us">🇺🇸 USA</option>
+                        <option value="au">🇦🇺 Australia</option>
+                        <option value="ca">🇨🇦 Canada</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="searchJobs()">
+                        <span>🔍</span><span>Search</span>
+                    </button>
+                </div>
+                <div class="jobs-quick-tags" id="jobsQuickTags">
+                    <!-- Quick tag chips rendered from user skills -->
+                </div>
+                <div id="adzunaKeyStatus" class="adzuna-key-status"></div>
+            </div>
+
+            <!-- Results -->
+            <div id="jobsResults">
+                <div id="jobsLoading" class="jobs-loading hidden">
+                    <div class="jobs-spinner"></div>
+                    <p>Searching live jobs...</p>
+                </div>
+                <div id="jobsGrid" class="jobs-grid"></div>
+                <div id="jobsEmpty" class="empty-state hidden">
+                    <div class="empty-icon">💼</div>
+                    <h3>No Jobs Found</h3>
+                    <p>Try different keywords or a broader location.</p>
+                </div>
+                <div id="jobsError" class="jobs-error hidden"></div>
+                <div id="jobsPagination" class="jobs-pagination hidden">
+                    <button class="btn btn-secondary" id="jobsPrevBtn" onclick="loadJobsPage(-1)">← Previous</button>
+                    <span id="jobsPageInfo" style="color:var(--color-text-secondary);font-size:0.9rem;"></span>
+                    <button class="btn btn-primary" id="jobsNextBtn" onclick="loadJobsPage(1)">Next →</button>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- JD Analyzer View -->
+        <div id="jdanalyzerView" class="view-container hidden">
+            <div class="section-header">
+                <h2 class="section-title">🔍 JD Analyzer</h2>
+                <button class="btn btn-secondary" onclick="switchView('dashboard')">
+                    <span>←</span><span>Back to Dashboard</span>
+                </button>
+            </div>
+
+            <!-- Input Section -->
+            <div class="jda-input-card">
+                <div class="jda-input-header">
+                    <div>
+                        <h3>Paste Job Description</h3>
+                        <p>Paste any job description and we'll instantly analyze the required skills against your
+                            profile.</p>
+                    </div>
+                </div>
+
+                <div
+                    style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--spacing-md); margin-bottom:var(--spacing-md);">
+                    <div>
+                        <label class="jda-label">Company Name <span
+                                style="color:var(--color-text-tertiary)">(optional)</span></label>
+                        <input type="text" id="jdaCompanyName" class="jda-input" placeholder="e.g. Google" />
+                    </div>
+                    <div>
+                        <label class="jda-label">Role / Position <span
+                                style="color:var(--color-text-tertiary)">(optional)</span></label>
+                        <input type="text" id="jdaRoleName" class="jda-input"
+                            placeholder="e.g. Frontend Developer Intern" />
+                    </div>
+                </div>
+
+                <label class="jda-label">Job Description *</label>
+                <textarea id="jdaText" class="jda-textarea"
+                    placeholder="Paste the full job description here...&#10;&#10;Example:&#10;We are looking for a React developer with experience in Node.js, MongoDB, and REST APIs. The candidate should know Git, Docker, and have good understanding of TypeScript..."></textarea>
+
+                <div style="display:flex; gap:var(--spacing-md); margin-top:var(--spacing-md); flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="analyzeJD()">
+                        <span>🔍</span><span>Analyze JD</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearJDA()">
+                        <span>🗑️</span><span>Clear</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="jdaResults" class="hidden">
+
+                <!-- Match Score -->
+                <div class="jda-score-card">
+                    <div class="jda-score-circle" id="jdaScoreCircle">
+                        <span id="jdaScoreValue">0%</span>
+                        <small>Match</small>
+                    </div>
+                    <div class="jda-score-info">
+                        <h3 id="jdaScoreTitle">Your Match Score</h3>
+                        <p id="jdaScoreMsg" style="color:var(--color-text-secondary);"></p>
+                        <div class="jda-score-bar-wrap">
+                            <div class="jda-score-bar" id="jdaScoreBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Grid -->
+                <div class="jda-skills-grid">
+                    <!-- You Have -->
+                    <div class="jda-skills-box have">
+                        <h4>✅ Skills You Have <span id="jdaHaveCount" class="jda-count"></span></h4>
+                        <div id="jdaHaveSkills" class="jda-chips"></div>
+                    </div>
+                    <!-- You Need -->
+                    <div class="jda-skills-box need">
+                        <h4>❌ Skills to Learn <span id="jdaNeedCount" class="jda-count"></span></h4>
+                        <div id="jdaNeedSkills" class="jda-chips"></div>
+                    </div>
+                </div>
+
+                <!-- All Detected Skills -->
+                <div id="jdaAllSkillsSection" class="jda-all-skills-card">
+                    <h4>🎯 All Detected Skills</h4>
+                    <div id="jdaAllSkills" class="jda-chips" style="margin-top:var(--spacing-md);"></div>
+                </div>
+
+                <!-- No Skills Found -->
+                <div id="jdaNoSkills" class="hidden" style="text-align:center; padding:var(--spacing-2xl);">
+                    <div style="font-size:3rem;">🤔</div>
+                    <h3 style="margin:var(--spacing-md) 0 var(--spacing-sm);">No Recognizable Skills Found</h3>
+                    <p style="color:var(--color-text-secondary);">The JD may use different terminology. Try pasting a
+                        more detailed description or add skills manually in the Skill Gap section.</p>
+                </div>
+
+                <!-- Add to Tracker -->
+                <div id="jdaAddTracker" class="jda-add-tracker hidden">
+                    <div>
+                        <h4>Add to Company Tracker</h4>
+                        <p style="color:var(--color-text-secondary);font-size:0.9rem;">Save this role with all detected
+                            skills pre-filled.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="addJDAToTracker()">
+                        <span>➕</span><span>Add to Tracker</span>
+                    </button>
+                </div>
             </div>
         </div>
 

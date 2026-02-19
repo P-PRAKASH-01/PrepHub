@@ -258,6 +258,10 @@ function showNotification(message, type = 'info') {
 // ===================================
 
 function switchView(viewName) {
+  // Hide hero
+  const hero = document.getElementById('hero');
+  if (hero) hero.style.display = 'none';
+
   // Hide all views
   document.querySelectorAll('.view-container').forEach(view => {
     view.classList.add('hidden');
@@ -290,6 +294,13 @@ function switchView(viewName) {
     case 'progress':
       document.getElementById('progressView').classList.remove('hidden');
       renderProgress();
+      break;
+    case 'jobs':
+      document.getElementById('jobsView').classList.remove('hidden');
+      initJobsView();
+      break;
+    case 'jdanalyzer':
+      document.getElementById('jdanalyzerView').classList.remove('hidden');
       break;
   }
 
@@ -394,6 +405,14 @@ function createCompanyCard(company) {
         </div>
         ${company.notes ? '<div class="meta-item"><span>📄</span><span>Has notes</span></div>' : ''}
       </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-top: var(--spacing-sm);">
+        <button class="btn btn-outline" 
+          style="font-size:0.8rem; padding:0.4rem 0.8rem; border-color: var(--color-danger); color: var(--color-danger);"
+          onclick="event.stopPropagation(); deleteCompany(${company.id})">
+          🗑️ Remove
+        </button>
+      </div>
     </div>
   `;
 }
@@ -483,6 +502,11 @@ function viewCompanyDetail(companyId) {
           ${company.deadline ? `<div><strong>Deadline:</strong> ${new Date(company.deadline).toLocaleDateString()}</div>` : ''}
         </div>
       </div>
+      ${company.description ? `
+      <div style="margin-top: var(--spacing-xl); padding: var(--spacing-lg); background: var(--color-bg-tertiary); border-radius: var(--radius-lg);">
+        <h4 style="margin-bottom: var(--spacing-sm);">📄 Job Description</h4>
+        <p style="color: var(--color-text-secondary); line-height: 1.8; white-space: pre-wrap; font-size: 0.9rem;">${company.description}</p>
+      </div>` : ''}
       
       <div style="margin-top: var(--spacing-xl); padding: var(--spacing-lg); background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: var(--radius-lg);">
         <h4 style="margin-bottom: var(--spacing-sm); color: var(--color-primary-light);">💡 Next Steps</h4>
@@ -524,19 +548,36 @@ function renderSkillGapAnalysis() {
   container.classList.remove('hidden');
   empty.classList.add('hidden');
 
-  // Collect all required skills
+  // Collect all required skills (case-insensitive dedup)
   const allRequiredSkills = new Set();
   appState.companies.forEach(company => {
     company.requiredSkills.forEach(skill => allRequiredSkills.add(skill));
   });
 
-  // Categorize skills
+  // Case-insensitive comparison
+  const userSkillsLower = appState.userSkills.map(s => s.toLowerCase());
+
   const proficientSkills = Array.from(allRequiredSkills).filter(skill =>
-    appState.userSkills.includes(skill)
+    userSkillsLower.includes(skill.toLowerCase())
   );
   const neededSkills = Array.from(allRequiredSkills).filter(skill =>
-    !appState.userSkills.includes(skill)
+    !userSkillsLower.includes(skill.toLowerCase())
   );
+
+  // If no required skills found across all companies, show helpful message
+  if (allRequiredSkills.size === 0) {
+    container.innerHTML = `
+      <div style="background: var(--color-bg-card); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: var(--spacing-xl); text-align: center;">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+        <h3 style="margin-bottom: var(--spacing-sm);">No Required Skills Found</h3>
+        <p style="color: var(--color-text-secondary);">Your tracked companies don't have required skills listed yet. Add companies manually or use the Jobs tab to track roles with auto-detected skills.</p>
+        <button class="btn btn-primary" style="margin-top: var(--spacing-lg);" onclick="showAddCompanyModal()">
+          <span>➕</span><span>Add Company</span>
+        </button>
+      </div>
+    `;
+    return;
+  }
 
   container.innerHTML = `
     <div class="gap-analysis">
@@ -551,7 +592,7 @@ function renderSkillGapAnalysis() {
           </p>
           <div class="gap-skills">
             ${neededSkills.map(skill => {
-    const count = appState.companies.filter(c => c.requiredSkills.includes(skill)).length;
+    const count = appState.companies.filter(c => c.requiredSkills.map(s => s.toLowerCase()).includes(skill.toLowerCase())).length;
     return `<div class="skill-chip needed">${skill} <span style="opacity: 0.6;">(${count} ${count > 1 ? 'companies' : 'company'})</span></div>`;
   }).join('')}
           </div>
@@ -569,7 +610,7 @@ function renderSkillGapAnalysis() {
           </p>
           <div class="gap-skills">
             ${proficientSkills.map(skill => {
-    const count = appState.companies.filter(c => c.requiredSkills.includes(skill)).length;
+    const count = appState.companies.filter(c => c.requiredSkills.map(s => s.toLowerCase()).includes(skill.toLowerCase())).length;
     return `<div class="skill-chip proficient">${skill} <span style="opacity: 0.6;">(${count} ${count > 1 ? 'companies' : 'company'})</span></div>`;
   }).join('')}
           </div>
@@ -588,7 +629,7 @@ function renderSkillGapAnalysis() {
             <div style="color: var(--color-text-secondary); font-size: 0.875rem;">Skills to Learn</div>
           </div>
           <div>
-            <div style="font-size: 2rem; font-weight: bold; color: var(--color-primary-light);">${Math.round((proficientSkills.length / (proficientSkills.length + neededSkills.length)) * 100)}%</div>
+            <div style="font-size: 2rem; font-weight: bold; color: var(--color-primary-light);">${(() => { const total = proficientSkills.length + neededSkills.length; return total > 0 ? Math.round((proficientSkills.length / total) * 100) : 0; })()}%</div>
             <div style="color: var(--color-text-secondary); font-size: 0.875rem;">Skill Readiness</div>
           </div>
         </div>
@@ -681,17 +722,31 @@ function toggleFavorite(companyId) {
   }
 }
 
+function deleteCompany(companyId) {
+  const company = appState.companies.find(c => c.id === companyId);
+  if (!company) return;
+  if (!confirm(`Remove "${company.name}" from your tracker?`)) return;
+
+  appState.companies = appState.companies.filter(c => c.id !== companyId);
+  saveToLocalStorage();
+  showNotification(`"${company.name}" removed from tracker`, 'success');
+
+  // Re-render current view
+  if (appState.currentView === 'companies') renderCompanies();
+  else if (appState.currentView === 'dashboard') renderDashboard();
+}
+
 function autoSaveNotes(companyId) {
   const company = appState.companies.find(c => c.id === companyId);
   if (company) {
     const notesTextarea = document.getElementById('companyNotes');
     company.notes = notesTextarea.value;
     saveToLocalStorage();
-    
+
     // Update character count immediately
     const charCountDisplay = document.getElementById('notesCharCount');
     if (charCountDisplay) {
-        charCountDisplay.textContent = `${company.notes.length} characters`;
+      charCountDisplay.textContent = `${company.notes.length} characters`;
     }
 
     // Show save status
@@ -1197,4 +1252,429 @@ if ('serviceWorker' in navigator) {
       refreshing = true;
     }
   });
+}
+// ===================================
+// Jobs Feature — Secure Proxy Version
+// Keys live in .env on the server only.
+// Frontend calls /api/jobs — never Adzuna directly.
+// ===================================
+
+// Proxy endpoint — served by server.js
+const JOBS_API = '/api/jobs';
+
+let jobsState = {
+  currentPage: 1,
+  totalResults: 0,
+  resultsPerPage: 12,
+  lastKeyword: '',
+  lastLocation: '',
+  lastCountry: 'in'
+};
+
+// ---- View Init ----
+
+function initJobsView() {
+  // Check if proxy server is reachable
+  checkProxyHealth();
+  renderJobsQuickTags();
+}
+
+async function checkProxyHealth() {
+  const statusEl = document.getElementById('adzunaKeyStatus');
+  try {
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    if (statusEl) {
+      if (data.keysConfigured) {
+        statusEl.innerHTML = `<span style="color:var(--color-success)">✅ Server connected — Adzuna API ready</span>`;
+      } else {
+        statusEl.innerHTML = `<span style="color:var(--color-warning)">⚠️ Server running but API keys not set — edit your <code>.env</code> file and restart the server</span>`;
+      }
+    }
+  } catch {
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="color:var(--color-danger)">⚠️ Server not running — start it with <code>node server.js</code> then refresh</span>`;
+    }
+  }
+}
+
+function renderJobsQuickTags() {
+  const container = document.getElementById('jobsQuickTags');
+  if (!container) return;
+  const skills = appState.userSkills.slice(0, 8);
+  if (skills.length === 0) {
+    container.innerHTML = '<span style="color:var(--color-text-tertiary);font-size:0.8rem;">Add your skills in Skill Gap to get quick search tags</span>';
+    return;
+  }
+  container.innerHTML = skills.map(skill =>
+    `<span class="quick-tag" onclick="quickSearchSkill('${skill}')">${skill}</span>`
+  ).join('');
+}
+
+function quickSearchSkill(skill) {
+  document.getElementById('jobKeyword').value = skill;
+  searchJobs();
+}
+
+// Enter key support for job search inputs
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const active = document.activeElement;
+      if (active && (active.id === 'jobKeyword' || active.id === 'jobLocation')) {
+        searchJobs();
+      }
+      if (active && active.id === 'jdaText') {
+        // Ctrl+Enter to analyze JD
+        if (e.ctrlKey || e.metaKey) analyzeJD();
+      }
+    }
+  });
+});
+
+// ---- Search ----
+
+async function searchJobs(page = 1) {
+  const keyword = document.getElementById('jobKeyword').value.trim() || 'software developer intern';
+  const location = document.getElementById('jobLocation').value.trim();
+  const country = document.getElementById('jobCountry').value;
+
+  jobsState.currentPage = page;
+  jobsState.lastKeyword = keyword;
+  jobsState.lastLocation = location;
+  jobsState.lastCountry = country;
+
+  // UI: show loading
+  document.getElementById('jobsLoading').classList.remove('hidden');
+  document.getElementById('jobsGrid').innerHTML = '';
+  document.getElementById('jobsEmpty').classList.add('hidden');
+  document.getElementById('jobsError').classList.add('hidden');
+  document.getElementById('jobsPagination').classList.add('hidden');
+
+  try {
+    // Call OUR proxy — not Adzuna directly. Keys stay on the server.
+    const params = new URLSearchParams({ keyword, location, country, page });
+    const response = await fetch(`${JOBS_API}?${params.toString()}`);
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || `Server error ${response.status}`);
+    }
+
+    const data = await response.json();
+    jobsState.totalResults = data.count || 0;
+    renderJobResults(data.results || []);
+  } catch (error) {
+    console.error('[Jobs] Error fetching jobs:', error);
+    document.getElementById('jobsLoading').classList.add('hidden');
+    const errEl = document.getElementById('jobsError');
+    errEl.classList.remove('hidden');
+    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError') || error.message.includes('Load failed')) {
+      errEl.innerHTML = `
+        <p style="font-weight:600;margin-bottom:0.5rem;">⚠️ Cannot reach the PrepHub server</p>
+        <p style="font-size:0.875rem;">Make sure the server is running:<br><code style="background:rgba(255,255,255,0.1);padding:0.2rem 0.5rem;border-radius:4px;">node server.js</code><br><br>Then refresh this page.</p>
+      `;
+    } else {
+      errEl.innerHTML = `<p style="font-weight:600;">⚠️ ${error.message}</p><p style="font-size:0.875rem;margin-top:0.5rem;">Check that your <code>.env</code> keys are correct and the server is running.</p>`;
+    }
+  }
+}
+
+function renderJobResults(jobs) {
+  document.getElementById('jobsLoading').classList.add('hidden');
+
+  if (!jobs || jobs.length === 0) {
+    document.getElementById('jobsEmpty').classList.remove('hidden');
+    return;
+  }
+
+  const grid = document.getElementById('jobsGrid');
+  grid.innerHTML = jobs.map(job => createJobCard(job)).join('');
+
+  // Pagination
+  const totalPages = Math.ceil(jobsState.totalResults / jobsState.resultsPerPage);
+  const pagination = document.getElementById('jobsPagination');
+  if (totalPages > 1) {
+    pagination.classList.remove('hidden');
+    document.getElementById('jobsPageInfo').textContent =
+      `Page ${jobsState.currentPage} of ${totalPages} (${jobsState.totalResults.toLocaleString()} results)`;
+    document.getElementById('jobsPrevBtn').disabled = jobsState.currentPage <= 1;
+    document.getElementById('jobsNextBtn').disabled = jobsState.currentPage >= totalPages;
+  }
+}
+
+// Cache full job data by index so we can safely pass to tracker
+const _jobCache = {};
+
+function createJobCard(job) {
+  const title = job.title || 'Untitled Role';
+  const company = job.company?.display_name || 'Company Not Listed';
+  const location = job.location?.display_name || 'Location Not Specified';
+  const description = job.description || '';
+  const category = job.category?.label || '';
+  const contractType = job.contract_type || '';
+  const contractTime = job.contract_time || '';
+  const salaryMin = job.salary_min;
+  const salaryMax = job.salary_max;
+  const url = job.redirect_url || '#';
+  const created = job.created ? new Date(job.created).toLocaleDateString() : '';
+
+  // Store full job data in cache — safe way to pass complex data to onclick
+  const cacheKey = 'job_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+  _jobCache[cacheKey] = { company, title, location, description: description.replace(/<[^>]+>/g, '') };
+
+  // Determine badge type
+  let badgeClass = 'fulltime';
+  let badgeLabel = 'Full-time';
+  if (contractTime === 'part_time') { badgeClass = 'parttime'; badgeLabel = 'Part-time'; }
+  else if (contractType === 'contract') { badgeClass = 'contract'; badgeLabel = 'Contract'; }
+  else if (title.toLowerCase().includes('intern')) { badgeClass = 'intern'; badgeLabel = 'Internship'; }
+
+  // Salary
+  let salaryHTML = '';
+  if (salaryMin || salaryMax) {
+    const fmt = n => n ? '₹' + Math.round(n).toLocaleString('en-IN') : '';
+    salaryHTML = `<div class="job-card-salary">💰 ${fmt(salaryMin)}${salaryMin && salaryMax ? ' – ' : ''}${fmt(salaryMax)}</div>`;
+  }
+
+  // Skill matching handled by JD Analyzer — not auto-extracted on cards
+  let skillMatchHTML = '';
+
+  // Clean description for preview
+  const cleanDesc = description.replace(/<[^>]+>/g, '').substring(0, 200) + '...';
+
+  return `
+    <div class="job-card fade-in">
+      <div class="job-card-header">
+        <div>
+          <div class="job-card-title">${escapeHtml(title)}</div>
+          <div class="job-card-company">🏢 ${escapeHtml(company)}</div>
+        </div>
+        <span class="job-type-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+
+      <div class="job-card-meta">
+        <span class="job-meta-item">📍 ${escapeHtml(location)}</span>
+        ${category ? `<span class="job-meta-item">📂 ${escapeHtml(category)}</span>` : ''}
+        ${created ? `<span class="job-meta-item">🗓 ${created}</span>` : ''}
+      </div>
+
+      ${salaryHTML}
+
+      <div class="job-card-description">${escapeHtml(cleanDesc)}</div>
+
+      ${skillMatchHTML}
+
+      <div class="job-card-actions">
+        <button class="btn btn-secondary" onclick="addJobToTrackerFromCache('${cacheKey}')">
+          <span>➕</span><span>Track</span>
+        </button>
+        <a href="${url}" target="_blank" rel="noopener" class="btn btn-primary" style="text-decoration:none;display:flex;align-items:center;justify-content:center;gap:0.4rem;">
+          <span>🔗</span><span>Apply</span>
+        </a>
+      </div>
+    </div>
+  `;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function loadJobsPage(direction) {
+  const newPage = jobsState.currentPage + direction;
+  if (newPage < 1) return;
+  searchJobs(newPage);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Master skill list for extraction from job descriptions
+const KNOWN_SKILLS = [
+  // Languages
+  'JavaScript', 'TypeScript', 'Python', 'Java', 'C++', 'C#', 'C', 'Go', 'Rust', 'Ruby', 'PHP', 'Swift', 'Kotlin', 'Scala', 'R', 'MATLAB',
+  // Frontend
+  'React', 'Angular', 'Vue', 'Vue.js', 'Next.js', 'Nuxt.js', 'HTML', 'CSS', 'Sass', 'Tailwind', 'Bootstrap', 'jQuery', 'Redux', 'GraphQL', 'WebGL', 'Three.js',
+  // Backend
+  'Node.js', 'Express', 'Django', 'Flask', 'FastAPI', 'Spring', 'Spring Boot', 'Laravel', 'Rails', 'ASP.NET', '.NET', 'Symfony',
+  // Databases
+  'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite', 'Oracle', 'SQL Server', 'Firebase', 'Supabase', 'DynamoDB', 'Cassandra', 'Elasticsearch',
+  // Cloud & DevOps
+  'AWS', 'Azure', 'GCP', 'Docker', 'Kubernetes', 'CI/CD', 'Jenkins', 'GitHub Actions', 'Terraform', 'Ansible', 'Linux', 'Nginx', 'Apache',
+  // Mobile
+  'React Native', 'Flutter', 'Android', 'iOS', 'Xamarin',
+  // Data & AI
+  'Machine Learning', 'Deep Learning', 'TensorFlow', 'PyTorch', 'Pandas', 'NumPy', 'Scikit-learn', 'OpenCV', 'NLP', 'LLM', 'Data Science', 'Power BI', 'Tableau',
+  // Tools & Others
+  'Git', 'GitHub', 'GitLab', 'Jira', 'Figma', 'REST', 'REST API', 'Microservices', 'Agile', 'Scrum', 'OOP', 'DSA', 'Data Structures',
+  // Testing
+  'Jest', 'Mocha', 'Selenium', 'Cypress', 'JUnit', 'pytest'
+];
+
+function extractSkillsFromText(text) {
+  if (!text) return [];
+  const lower = text.toLowerCase();
+  return KNOWN_SKILLS.filter(skill =>
+    lower.includes(skill.toLowerCase())
+  );
+}
+
+function addJobToTrackerFromCache(cacheKey) {
+  const job = _jobCache[cacheKey];
+  if (!job) { showNotification('Could not retrieve job data', 'error'); return; }
+  addJobToTracker(job.company, job.title, job.location, job.description);
+}
+
+function addJobToTracker(company, role, location, description = '') {
+  const newCompany = {
+    id: Date.now(),
+    name: company,
+    role: role,
+    requiredSkills: [],  // User adds skills manually via Edit or JD Analyzer
+    location: location || 'Not specified',
+    type: role.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
+    isFavorite: false,
+    notes: 'Added from Jobs search. Use JD Analyzer to extract required skills.',
+    description: description,
+    addedDate: new Date().toISOString(),
+    deadline: null
+  };
+  appState.companies.push(newCompany);
+  saveToLocalStorage();
+  showNotification(`"${company}" added to tracker! Use JD Analyzer to extract skills. ✅`, 'success');
+}
+
+
+
+// ===================================
+// JD Analyzer
+// ===================================
+
+let jdaExtractedSkills = [];
+
+function analyzeJD() {
+  const text = document.getElementById('jdaText').value.trim();
+  if (!text) {
+    showNotification('Please paste a job description first', 'error');
+    return;
+  }
+
+  // Extract skills from full JD text
+  jdaExtractedSkills = extractSkillsFromText(text);
+
+  const resultsEl = document.getElementById('jdaResults');
+  const noSkillsEl = document.getElementById('jdaNoSkills');
+  const allSkillsSection = document.getElementById('jdaAllSkillsSection');
+  const addTrackerEl = document.getElementById('jdaAddTracker');
+
+  resultsEl.classList.remove('hidden');
+
+  if (jdaExtractedSkills.length === 0) {
+    noSkillsEl.classList.remove('hidden');
+    allSkillsSection.classList.add('hidden');
+    addTrackerEl.classList.add('hidden');
+    document.getElementById('jdaScoreCircle').className = 'jda-score-circle low';
+    document.getElementById('jdaScoreValue').textContent = '0%';
+    document.getElementById('jdaScoreBar').style.width = '0%';
+    document.getElementById('jdaScoreBar').style.background = 'var(--color-danger)';
+    document.getElementById('jdaScoreMsg').textContent = 'No recognizable skills detected in this JD.';
+    document.getElementById('jdaHaveSkills').innerHTML = '';
+    document.getElementById('jdaNeedSkills').innerHTML = '';
+    document.getElementById('jdaHaveCount').textContent = '0';
+    document.getElementById('jdaNeedCount').textContent = '0';
+    return;
+  }
+
+  noSkillsEl.classList.add('hidden');
+  allSkillsSection.classList.remove('hidden');
+  addTrackerEl.classList.remove('hidden');
+
+  // Compare against user skills (case-insensitive)
+  const userSkillsLower = appState.userSkills.map(s => s.toLowerCase());
+  const haveSkills = jdaExtractedSkills.filter(s => userSkillsLower.includes(s.toLowerCase()));
+  const needSkills = jdaExtractedSkills.filter(s => !userSkillsLower.includes(s.toLowerCase()));
+
+  // Score
+  const score = Math.round((haveSkills.length / jdaExtractedSkills.length) * 100);
+
+  // Score circle styling
+  const circle = document.getElementById('jdaScoreCircle');
+  circle.className = 'jda-score-circle ' + (score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low');
+  document.getElementById('jdaScoreValue').textContent = score + '%';
+
+  // Score bar
+  const bar = document.getElementById('jdaScoreBar');
+  bar.style.background = score >= 70
+    ? 'var(--color-success)'
+    : score >= 40 ? 'var(--color-warning)' : 'var(--color-danger)';
+  setTimeout(() => { bar.style.width = score + '%'; }, 100);
+
+  // Score message
+  const msgs = {
+    high: `Great match! You have ${haveSkills.length} of ${jdaExtractedSkills.length} required skills. You're well prepared to apply!`,
+    mid: `Decent match. You have ${haveSkills.length} of ${jdaExtractedSkills.length} skills. Focus on learning ${needSkills.slice(0, 3).join(', ')}.`,
+    low: `Low match. You have ${haveSkills.length} of ${jdaExtractedSkills.length} skills. Build your foundation before applying.`
+  };
+  document.getElementById('jdaScoreMsg').textContent = score >= 70 ? msgs.high : score >= 40 ? msgs.mid : msgs.low;
+  document.getElementById('jdaScoreTitle').textContent = score >= 70 ? '🎉 Strong Match!' : score >= 40 ? '📈 Growing Match' : '📚 Skills Gap Found';
+
+  // Have skills
+  document.getElementById('jdaHaveCount').textContent = haveSkills.length;
+  document.getElementById('jdaHaveSkills').innerHTML = haveSkills.length > 0
+    ? haveSkills.map(s => `<span class="jda-chip have">✓ ${s}</span>`).join('')
+    : '<span style="color:var(--color-text-tertiary);font-size:0.85rem;">None of the required skills match yet</span>';
+
+  // Need skills
+  document.getElementById('jdaNeedCount').textContent = needSkills.length;
+  document.getElementById('jdaNeedSkills').innerHTML = needSkills.length > 0
+    ? needSkills.map(s => `<span class="jda-chip need">✗ ${s}</span>`).join('')
+    : '<span style="color:var(--color-success);font-size:0.85rem;">You have all detected skills! 🎉</span>';
+
+  // All skills
+  document.getElementById('jdaAllSkills').innerHTML = jdaExtractedSkills
+    .map(s => `<span class="jda-chip all">${s}</span>`).join('');
+
+  // Scroll to results
+  resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function addJDAToTracker() {
+  const company = document.getElementById('jdaCompanyName').value.trim() || 'Unknown Company';
+  const role = document.getElementById('jdaRoleName').value.trim() || 'Unknown Role';
+
+  if (jdaExtractedSkills.length === 0) {
+    showNotification('No skills detected to add', 'error');
+    return;
+  }
+
+  const newCompany = {
+    id: Date.now(),
+    name: company,
+    role: role,
+    requiredSkills: jdaExtractedSkills,
+    location: 'Not specified',
+    type: role.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
+    isFavorite: false,
+    notes: 'Added from JD Analyzer.',
+    description: document.getElementById('jdaText').value.trim(),
+    addedDate: new Date().toISOString(),
+    deadline: null
+  };
+
+  appState.companies.push(newCompany);
+  saveToLocalStorage();
+  showNotification(`"${company}" added to tracker with ${jdaExtractedSkills.length} skills! ✅`, 'success');
+  switchView('companies');
+}
+
+function clearJDA() {
+  document.getElementById('jdaText').value = '';
+  document.getElementById('jdaCompanyName').value = '';
+  document.getElementById('jdaRoleName').value = '';
+  document.getElementById('jdaResults').classList.add('hidden');
+  jdaExtractedSkills = [];
 }
