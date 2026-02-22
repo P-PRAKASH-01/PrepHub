@@ -258,9 +258,9 @@ function showNotification(message, type = 'info') {
 // ===================================
 
 function switchView(viewName) {
-  // Hide hero
+  // Show hero only on dashboard, hide on all other views
   const hero = document.getElementById('hero');
-  if (hero) hero.style.display = 'none';
+  if (hero) hero.style.display = viewName === 'dashboard' ? 'block' : 'none';
 
   // Hide all views
   document.querySelectorAll('.view-container').forEach(view => {
@@ -282,6 +282,9 @@ function switchView(viewName) {
     case 'dashboard':
       document.getElementById('dashboardView').classList.remove('hidden');
       renderDashboard();
+      // Re-show hero on dashboard
+      const heroEl = document.getElementById('hero');
+      if (heroEl) heroEl.style.display = 'block';
       break;
     case 'companies':
       document.getElementById('companiesView').classList.remove('hidden');
@@ -301,6 +304,10 @@ function switchView(viewName) {
       break;
     case 'jdanalyzer':
       document.getElementById('jdanalyzerView').classList.remove('hidden');
+      break;
+    case 'resume':
+      document.getElementById('resumeView').classList.remove('hidden');
+      updatePreview();
       break;
   }
 
@@ -467,15 +474,25 @@ function viewCompanyDetail(companyId) {
         </div>
       </div>
       
-      ${neededSkills.length > 0 ? `
+      ${company.requiredSkills.length === 0 ? `
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
+          <h4 style="color: var(--color-primary-light); margin-bottom: var(--spacing-sm);">💡 No Required Skills Added Yet</h4>
+          <p style="color: var(--color-text-secondary);">
+            To see your skill match for this role:<br>
+            1. Click <strong>Apply</strong> to open the job posting<br>
+            2. Copy the full job description<br>
+            3. Paste it into <strong>🔍 JD Analyzer</strong> to extract required skills and your match score
+          </p>
+        </div>
+      ` : neededSkills.length > 0 ? `
         <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
           <h4 style="color: var(--color-danger); margin-bottom: var(--spacing-sm);">⚠️ Skill Gaps Identified</h4>
           <p style="color: var(--color-text-secondary);">You need to learn ${neededSkills.length} skill${neededSkills.length > 1 ? 's' : ''} for this role. Focus your preparation on: ${neededSkills.slice(0, 3).join(', ')}${neededSkills.length > 3 ? ', ...' : ''}.</p>
         </div>
       ` : `
         <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-lg); padding: var(--spacing-lg); margin-bottom: var(--spacing-xl);">
-          <h4 style="color: var(--color-success); margin-bottom: var(--spacing-sm);">✓ You're Ready!</h4>
-          <p style="color: var(--color-text-secondary);">You have all the required skills for this role. Review your preparation notes and you're good to apply!</p>
+          <h4 style="color: var(--color-success); margin-bottom: var(--spacing-sm);">🎉 Strong Match!</h4>
+          <p style="color: var(--color-text-secondary);">You have all the required skills for this role. Review your notes and apply with confidence!</p>
         </div>
       `}
       
@@ -1677,4 +1694,450 @@ function clearJDA() {
   document.getElementById('jdaRoleName').value = '';
   document.getElementById('jdaResults').classList.add('hidden');
   jdaExtractedSkills = [];
+}
+
+// ===================================
+// Resume Builder
+// ===================================
+
+// State
+let resumeData = {
+  personal: {},
+  education: [],
+  experience: [],
+  projects: [],
+  skills: '',
+  certifications: []
+};
+
+let eduCount = 0, expCount = 0, projCount = 0, certCount = 0;
+
+// ---- Section Toggle ----
+function toggleResumeSection(id) {
+  const body = document.getElementById(id);
+  const title = body.previousElementSibling;
+  body.classList.toggle('collapsed');
+  title.classList.toggle('collapsed');
+}
+
+// ---- Import Skills from Profile ----
+function importSkillsFromProfile() {
+  if (appState.userSkills.length === 0) {
+    showNotification('No skills in your profile yet. Add them in Skill Gap first.', 'error');
+    return;
+  }
+  document.getElementById('rb_skills').value = appState.userSkills.join(', ');
+  updatePreview();
+  showNotification(`${appState.userSkills.length} skills imported! ✅`, 'success');
+}
+
+// ---- Dynamic Entry Builders ----
+function addEducation() {
+  const id = ++eduCount;
+  const div = document.createElement('div');
+  div.className = 'rb-entry fade-in';
+  div.id = `edu_${id}`;
+  div.innerHTML = `
+    <button class="rb-entry-delete" onclick="removeEntry('edu_${id}'); updatePreview()">✕ Remove</button>
+    <div class="rb-grid-2" style="gap:var(--spacing-sm)">
+      <div><label class="rb-label">Degree / Course *</label><input class="rb-input" id="edu_degree_${id}" placeholder="B.Tech Computer Science" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Institution *</label><input class="rb-input" id="edu_school_${id}" placeholder="Anna University" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Year / Duration</label><input class="rb-input" id="edu_year_${id}" placeholder="2021 – 2025" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">CGPA / Grade</label><input class="rb-input" id="edu_grade_${id}" placeholder="8.5 CGPA" oninput="updatePreview()" /></div>
+    </div>
+  `;
+  document.getElementById('educationList').appendChild(div);
+}
+
+function addExperience() {
+  const id = ++expCount;
+  const div = document.createElement('div');
+  div.className = 'rb-entry fade-in';
+  div.id = `exp_${id}`;
+  div.innerHTML = `
+    <button class="rb-entry-delete" onclick="removeEntry('exp_${id}'); updatePreview()">✕ Remove</button>
+    <div class="rb-grid-2" style="gap:var(--spacing-sm)">
+      <div><label class="rb-label">Role / Position *</label><input class="rb-input" id="exp_role_${id}" placeholder="Frontend Developer Intern" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Company *</label><input class="rb-input" id="exp_company_${id}" placeholder="Google" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Duration</label><input class="rb-input" id="exp_duration_${id}" placeholder="Jun 2024 – Aug 2024" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Location</label><input class="rb-input" id="exp_loc_${id}" placeholder="Bangalore / Remote" oninput="updatePreview()" /></div>
+    </div>
+    <div style="margin-top:var(--spacing-sm)">
+      <label class="rb-label">Description / Responsibilities</label>
+      <textarea class="rb-textarea" id="exp_desc_${id}" rows="3" placeholder="• Built responsive UI components using React&#10;• Improved page load speed by 40%&#10;• Collaborated with design team on new features" oninput="updatePreview()"></textarea>
+    </div>
+  `;
+  document.getElementById('experienceList').appendChild(div);
+}
+
+function addProject() {
+  const id = ++projCount;
+  const div = document.createElement('div');
+  div.className = 'rb-entry fade-in';
+  div.id = `proj_${id}`;
+  div.innerHTML = `
+    <button class="rb-entry-delete" onclick="removeEntry('proj_${id}'); updatePreview()">✕ Remove</button>
+    <div class="rb-grid-2" style="gap:var(--spacing-sm)">
+      <div><label class="rb-label">Project Name *</label><input class="rb-input" id="proj_name_${id}" placeholder="PrepHub" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Tech Stack</label><input class="rb-input" id="proj_tech_${id}" placeholder="React, Node.js, MongoDB" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Live Link</label><input class="rb-input" id="proj_link_${id}" placeholder="prephub.vercel.app" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">GitHub</label><input class="rb-input" id="proj_github_${id}" placeholder="github.com/user/prephub" oninput="updatePreview()" /></div>
+    </div>
+    <div style="margin-top:var(--spacing-sm)">
+      <label class="rb-label">Description</label>
+      <textarea class="rb-textarea" id="proj_desc_${id}" rows="2" placeholder="A student career preparation portal with job tracking, skill gap analysis..." oninput="updatePreview()"></textarea>
+    </div>
+  `;
+  document.getElementById('projectsList').appendChild(div);
+}
+
+function addCertification() {
+  const id = ++certCount;
+  const div = document.createElement('div');
+  div.className = 'rb-entry fade-in';
+  div.id = `cert_${id}`;
+  div.innerHTML = `
+    <button class="rb-entry-delete" onclick="removeEntry('cert_${id}'); updatePreview()">✕ Remove</button>
+    <div class="rb-grid-2" style="gap:var(--spacing-sm)">
+      <div><label class="rb-label">Certificate Name *</label><input class="rb-input" id="cert_name_${id}" placeholder="AWS Cloud Practitioner" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Issuing Organization</label><input class="rb-input" id="cert_issuer_${id}" placeholder="Amazon Web Services" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Date</label><input class="rb-input" id="cert_date_${id}" placeholder="Jan 2024" oninput="updatePreview()" /></div>
+      <div><label class="rb-label">Credential ID / Link</label><input class="rb-input" id="cert_id_${id}" placeholder="ABC-123456" oninput="updatePreview()" /></div>
+    </div>
+  `;
+  document.getElementById('certsList').appendChild(div);
+}
+
+function removeEntry(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+}
+
+// ---- Collect Data ----
+function collectResumeData() {
+  const data = {
+    name: document.getElementById('rb_name')?.value || '',
+    title: document.getElementById('rb_title')?.value || '',
+    email: document.getElementById('rb_email')?.value || '',
+    phone: document.getElementById('rb_phone')?.value || '',
+    location: document.getElementById('rb_location')?.value || '',
+    linkedin: document.getElementById('rb_linkedin')?.value || '',
+    github: document.getElementById('rb_github')?.value || '',
+    website: document.getElementById('rb_website')?.value || '',
+    summary: document.getElementById('rb_summary')?.value || '',
+    skills: document.getElementById('rb_skills')?.value || '',
+    education: [],
+    experience: [],
+    projects: [],
+    certifications: []
+  };
+
+  // Education
+  for (let i = 1; i <= eduCount; i++) {
+    if (document.getElementById(`edu_${i}`)) {
+      data.education.push({
+        degree: document.getElementById(`edu_degree_${i}`)?.value || '',
+        school: document.getElementById(`edu_school_${i}`)?.value || '',
+        year: document.getElementById(`edu_year_${i}`)?.value || '',
+        grade: document.getElementById(`edu_grade_${i}`)?.value || ''
+      });
+    }
+  }
+
+  // Experience
+  for (let i = 1; i <= expCount; i++) {
+    if (document.getElementById(`exp_${i}`)) {
+      data.experience.push({
+        role: document.getElementById(`exp_role_${i}`)?.value || '',
+        company: document.getElementById(`exp_company_${i}`)?.value || '',
+        duration: document.getElementById(`exp_duration_${i}`)?.value || '',
+        location: document.getElementById(`exp_loc_${i}`)?.value || '',
+        description: document.getElementById(`exp_desc_${i}`)?.value || ''
+      });
+    }
+  }
+
+  // Projects
+  for (let i = 1; i <= projCount; i++) {
+    if (document.getElementById(`proj_${i}`)) {
+      data.projects.push({
+        name: document.getElementById(`proj_name_${i}`)?.value || '',
+        tech: document.getElementById(`proj_tech_${i}`)?.value || '',
+        link: document.getElementById(`proj_link_${i}`)?.value || '',
+        github: document.getElementById(`proj_github_${i}`)?.value || '',
+        description: document.getElementById(`proj_desc_${i}`)?.value || ''
+      });
+    }
+  }
+
+  // Certifications
+  for (let i = 1; i <= certCount; i++) {
+    if (document.getElementById(`cert_${i}`)) {
+      data.certifications.push({
+        name: document.getElementById(`cert_name_${i}`)?.value || '',
+        issuer: document.getElementById(`cert_issuer_${i}`)?.value || '',
+        date: document.getElementById(`cert_date_${i}`)?.value || '',
+        credId: document.getElementById(`cert_id_${i}`)?.value || ''
+      });
+    }
+  }
+
+  return data;
+}
+
+// ---- Render Preview ----
+function updatePreview() {
+  const d = collectResumeData();
+  const preview = document.getElementById('resumePreview');
+  if (!preview) return;
+
+  // Contact line
+  const contacts = [
+    d.email && `✉ ${d.email}`,
+    d.phone && `📞 ${d.phone}`,
+    d.location && `📍 ${d.location}`,
+    d.linkedin && `🔗 ${d.linkedin}`,
+    d.github && `💻 ${d.github}`,
+    d.website && `🌐 ${d.website}`
+  ].filter(Boolean);
+
+  // Education HTML
+  const eduHTML = d.education.filter(e => e.degree || e.school).map(e => `
+    <div class="rt-entry">
+      <div class="rt-entry-header">
+        <div class="rt-entry-title">${e.degree}</div>
+        <div class="rt-entry-date">${e.year}</div>
+      </div>
+      <div class="rt-entry-sub">${e.school}${e.grade ? ` &nbsp;|&nbsp; ${e.grade}` : ''}</div>
+    </div>
+  `).join('');
+
+  // Experience HTML
+  const expHTML = d.experience.filter(e => e.role || e.company).map(e => `
+    <div class="rt-entry">
+      <div class="rt-entry-header">
+        <div class="rt-entry-title">${e.role}</div>
+        <div class="rt-entry-date">${e.duration}</div>
+      </div>
+      <div class="rt-entry-sub">${e.company}${e.location ? ` &nbsp;·&nbsp; ${e.location}` : ''}</div>
+      ${e.description ? `<div class="rt-entry-desc">${e.description}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Projects HTML
+  const projHTML = d.projects.filter(p => p.name).map(p => `
+    <div class="rt-entry">
+      <div class="rt-entry-header">
+        <div class="rt-entry-title">${p.name}${p.tech ? ` <span style="font-weight:normal;color:#6b7280;font-size:8.5pt;">| ${p.tech}</span>` : ''}</div>
+        <div class="rt-entry-date">${p.link || p.github || ''}</div>
+      </div>
+      ${p.description ? `<div class="rt-entry-desc">${p.description}</div>` : ''}
+    </div>
+  `).join('');
+
+  // Skills HTML
+  const skillsHTML = d.skills
+    ? d.skills.split(',').map(s => s.trim()).filter(Boolean)
+      .map(s => `<span class="rt-skill-chip">${s}</span>`).join('')
+    : '<span class="rt-empty">Add your skills above</span>';
+
+  // Certifications HTML
+  const certsHTML = d.certifications.filter(c => c.name).map(c => `
+    <div class="rt-cert">
+      <span class="rt-cert-name">${c.name}${c.credId ? ` <span style="color:#9ca3af;font-size:8pt;">(${c.credId})</span>` : ''}</span>
+      <span class="rt-cert-issuer">${c.issuer}${c.date ? ` · ${c.date}` : ''}</span>
+    </div>
+  `).join('');
+
+  preview.innerHTML = `
+    <!-- Header -->
+    <div class="rt-header">
+      <div class="rt-name">${d.name || 'Your Name'}</div>
+      ${d.title ? `<div class="rt-role">${d.title}</div>` : ''}
+      <div class="rt-contact">
+        ${contacts.map(c => `<span class="rt-contact-item">${c}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- Summary -->
+    ${d.summary ? `
+    <div class="rt-section">
+      <div class="rt-section-title">Professional Summary</div>
+      <div class="rt-summary">${d.summary}</div>
+    </div>` : ''}
+
+    <!-- Education -->
+    ${eduHTML ? `
+    <div class="rt-section">
+      <div class="rt-section-title">Education</div>
+      ${eduHTML}
+    </div>` : ''}
+
+    <!-- Experience -->
+    ${expHTML ? `
+    <div class="rt-section">
+      <div class="rt-section-title">Experience</div>
+      ${expHTML}
+    </div>` : ''}
+
+    <!-- Projects -->
+    ${projHTML ? `
+    <div class="rt-section">
+      <div class="rt-section-title">Projects</div>
+      ${projHTML}
+    </div>` : ''}
+
+    <!-- Skills -->
+    <div class="rt-section">
+      <div class="rt-section-title">Skills</div>
+      <div class="rt-skills-wrap">${skillsHTML}</div>
+    </div>
+
+    <!-- Certifications -->
+    ${certsHTML ? `
+    <div class="rt-section">
+      <div class="rt-section-title">Certifications</div>
+      ${certsHTML}
+    </div>` : ''}
+  `;
+}
+
+// ---- Download PDF ----
+function downloadResumePDF() {
+  const d = collectResumeData();
+  if (!d.name) {
+    showNotification('Please enter your name before downloading', 'error');
+    return;
+  }
+
+  const customName = document.getElementById('rb_pdf_name')?.value.trim();
+  const filename = (customName || `${d.name.replace(/\s+/g, '_')}_Resume`) + '.pdf';
+
+  // Open a new clean window with just the resume HTML + styles
+  const resumeHTML = document.getElementById('resumePreview').innerHTML;
+
+  const printWindow = window.open('', '_blank', 'width=900,height=700');
+  printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${filename}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #ffffff;
+      color: #1a1a2e;
+      font-family: Georgia, serif;
+      font-size: 10.5pt;
+      line-height: 1.5;
+      padding: 28px 36px;
+    }
+    .rt-header {
+      border-bottom: 2.5px solid #3730a3;
+      padding-bottom: 14px;
+      margin-bottom: 14px;
+    }
+    .rt-name {
+      font-size: 22pt;
+      font-weight: bold;
+      color: #1e1b4b;
+      letter-spacing: 0.5px;
+      margin: 0 0 2px 0;
+    }
+    .rt-role {
+      font-size: 11pt;
+      color: #3730a3;
+      font-weight: 600;
+      margin: 0 0 8px 0;
+      font-family: Arial, sans-serif;
+    }
+    .rt-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 8.5pt;
+      color: #4b5563;
+      font-family: Arial, sans-serif;
+    }
+    .rt-contact-item { display: flex; align-items: center; gap: 4px; }
+    .rt-section { margin-bottom: 14px; }
+    .rt-section-title {
+      font-size: 10pt;
+      font-weight: bold;
+      color: #1e1b4b;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      font-family: Arial, sans-serif;
+      border-bottom: 1px solid #c7d2fe;
+      padding-bottom: 3px;
+      margin-bottom: 8px;
+    }
+    .rt-summary { font-size: 9.5pt; color: #374151; line-height: 1.6; }
+    .rt-entry { margin-bottom: 10px; }
+    .rt-entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 2px;
+    }
+    .rt-entry-title { font-weight: bold; font-size: 10pt; color: #1a1a2e; font-family: Arial, sans-serif; }
+    .rt-entry-date { font-size: 8.5pt; color: #6b7280; font-family: Arial, sans-serif; white-space: nowrap; flex-shrink: 0; margin-left: 8px; }
+    .rt-entry-sub { font-size: 9pt; color: #3730a3; font-style: italic; font-family: Arial, sans-serif; margin-bottom: 3px; }
+    .rt-entry-desc { font-size: 9pt; color: #374151; line-height: 1.5; white-space: pre-line; }
+    .rt-skills-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .rt-skill-chip {
+      background: #eef2ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+      border-radius: 4px;
+      padding: 2px 9px;
+      font-size: 8.5pt;
+      font-family: Arial, sans-serif;
+      font-weight: 500;
+    }
+    .rt-cert { display: flex; justify-content: space-between; font-size: 9pt; margin-bottom: 4px; font-family: Arial, sans-serif; }
+    .rt-cert-name { color: #1a1a2e; font-weight: 600; }
+    .rt-cert-issuer { color: #6b7280; font-style: italic; }
+    .rt-empty { display: none; }
+    @media print {
+      body { padding: 0; }
+      @page { margin: 15mm; size: A4; }
+    }
+  </style>
+</head>
+<body>${resumeHTML}</body>
+</html>`);
+
+  printWindow.document.close();
+  printWindow.focus();
+
+  // Wait for render then trigger print dialog
+  setTimeout(() => {
+    printWindow.print();
+    // Close window after print dialog
+    printWindow.onafterprint = () => printWindow.close();
+  }, 500);
+
+  showNotification('In the print dialog → change Destination to "Save as PDF" 📄', 'success');
+}
+// ---- Reset ----
+function resetResume() {
+  if (!confirm('Reset all resume data?')) return;
+  document.getElementById('rb_name').value = '';
+  document.getElementById('rb_title').value = '';
+  document.getElementById('rb_email').value = '';
+  document.getElementById('rb_phone').value = '';
+  document.getElementById('rb_location').value = '';
+  document.getElementById('rb_linkedin').value = '';
+  document.getElementById('rb_github').value = '';
+  document.getElementById('rb_website').value = '';
+  document.getElementById('rb_summary').value = '';
+  document.getElementById('rb_skills').value = '';
+  document.getElementById('educationList').innerHTML = '';
+  document.getElementById('experienceList').innerHTML = '';
+  document.getElementById('projectsList').innerHTML = '';
+  document.getElementById('certsList').innerHTML = '';
+  eduCount = 0; expCount = 0; projCount = 0; certCount = 0;
+  updatePreview();
+  showNotification('Resume cleared', 'success');
 }

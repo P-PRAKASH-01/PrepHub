@@ -52,8 +52,6 @@
                 <li><a href="#" class="nav-link" data-view="companies">🏢 Companies</a></li>
                 <li><a href="#" class="nav-link" data-view="skills">🎯 Skill Gap</a></li>
                 <li><a href="#" class="nav-link" data-view="progress">📈 Progress</a></li>
-                <li><a href="#" class="nav-link" data-view="jobs">💼 Jobs</a></li>
-                <li><a href="#" class="nav-link" data-view="jdanalyzer">🔍 JD Analyzer</a></li>
             </ul>
             <button id="settingsBtn" class="settings-btn">
                 <span>⚙️</span>
@@ -144,6 +142,15 @@
                     </div>
                 </div>
 
+                <div class="company-card" onclick="switchView('resume')"
+                    style="background: linear-gradient(135deg, rgba(16,185,129,0.8), rgba(5,150,105,0.9)); border: none;">
+                    <div style="text-align: center; padding: 2rem 0;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+                        <h3>Build Resume</h3>
+                        <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Create & download your resume</p>
+                    </div>
+                </div>
+
                 <div class="company-card" onclick="switchView('progress')"
                     style="background: var(--gradient-success); border: none;">
                     <div style="text-align: center; padding: 2rem 0;">
@@ -168,10 +175,17 @@
         <div id="companiesView" class="view-container hidden">
             <div class="section-header">
                 <h2 class="section-title">Companies & Roles</h2>
-                <button class="btn btn-primary" id="addCompanyBtn">
-                    <span>➕</span>
-                    <span>Add Company</span>
-                </button>
+                <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;">
+                    <button class="btn btn-secondary" onclick="switchView('jdanalyzer')">
+                        <span>🔍</span><span>JD Analyzer</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchView('jobs')">
+                        <span>💼</span><span>Browse Jobs</span>
+                    </button>
+                    <button class="btn btn-primary" id="addCompanyBtn">
+                        <span>➕</span><span>Add Company</span>
+                    </button>
+                </div>
             </div>
 
             <div id="companiesGrid" class="companies-grid">
@@ -246,6 +260,16 @@
                     <span>←</span>
                     <span>Back to Dashboard</span>
                 </button>
+            </div>
+
+            <!-- Workflow Note Banner -->
+            <div class="jobs-workflow-note">
+                <span class="jobs-note-icon">💡</span>
+                <div>
+                    <strong>How to get required skills:</strong>
+                    Click <strong>Apply</strong> on any job → Copy the full job description → Paste it into <strong>🔍
+                        JD Analyzer</strong> to extract required skills and see your match score.
+                </div>
             </div>
 
             <!-- Search Bar -->
@@ -408,6 +432,141 @@
             </div>
         </div>
 
+
+        <!-- Resume Builder View -->
+        <div id="resumeView" class="view-container hidden">
+            <div class="section-header">
+                <h2 class="section-title">📄 Resume Builder</h2>
+                <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;align-items:center;">
+                    <button class="btn btn-secondary" onclick="resetResume()">🔄 Reset</button>
+                    <input id="rb_pdf_name" class="rb-input" type="text"
+                        placeholder="PDF filename (e.g. Prakash_Resume)"
+                        style="width:220px;padding:0.5rem 0.9rem;font-size:0.875rem;" />
+                    <button class="btn btn-primary" onclick="downloadResumePDF()">🖨️ Print / Save PDF</button>
+                </div>
+            </div>
+
+            <div class="resume-builder-layout">
+
+                <!-- LEFT: Form -->
+                <div class="resume-form-panel">
+
+                    <!-- Personal Info -->
+                    <div class="resume-section-card">
+                        <div class="resume-section-title" onclick="toggleResumeSection('personalSection')">
+                            <span>👤 Personal Info</span><span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="personalSection" class="resume-section-body">
+                            <div class="rb-grid-2">
+                                <div><label class="rb-label">Full Name *</label><input id="rb_name" class="rb-input"
+                                        type="text" placeholder="Prakash P" oninput="updatePreview()" /></div>
+                                <div><label class="rb-label">Job Title / Role</label><input id="rb_title"
+                                        class="rb-input" type="text" placeholder="Frontend Developer"
+                                        oninput="updatePreview()" /></div>
+                                <div><label class="rb-label">Email *</label><input id="rb_email" class="rb-input"
+                                        type="email" placeholder="prakash@email.com" oninput="updatePreview()" /></div>
+                                <div><label class="rb-label">Phone</label><input id="rb_phone" class="rb-input"
+                                        type="text" placeholder="+91 9876543210" oninput="updatePreview()" /></div>
+                                <div><label class="rb-label">Location</label><input id="rb_location" class="rb-input"
+                                        type="text" placeholder="Chennai, India" oninput="updatePreview()" /></div>
+                                <div><label class="rb-label">LinkedIn</label><input id="rb_linkedin" class="rb-input"
+                                        type="text" placeholder="linkedin.com/in/prakash" oninput="updatePreview()" />
+                                </div>
+                                <div><label class="rb-label">GitHub</label><input id="rb_github" class="rb-input"
+                                        type="text" placeholder="github.com/prakash" oninput="updatePreview()" /></div>
+                                <div><label class="rb-label">Portfolio / Website</label><input id="rb_website"
+                                        class="rb-input" type="text" placeholder="prakash.dev"
+                                        oninput="updatePreview()" /></div>
+                            </div>
+                            <div style="margin-top:var(--spacing-md);">
+                                <label class="rb-label">Professional Summary</label>
+                                <textarea id="rb_summary" class="rb-textarea" rows="3"
+                                    placeholder="A passionate frontend developer with experience in React, Node.js..."
+                                    oninput="updatePreview()"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="resume-section-card">
+                        <div class="resume-section-title" onclick="toggleResumeSection('educationSection')">
+                            <span>🎓 Education</span><span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="educationSection" class="resume-section-body">
+                            <div id="educationList"></div>
+                            <button class="rb-add-btn" onclick="addEducation()">+ Add Education</button>
+                        </div>
+                    </div>
+
+                    <!-- Experience -->
+                    <div class="resume-section-card">
+                        <div class="resume-section-title" onclick="toggleResumeSection('experienceSection')">
+                            <span>💼 Experience / Internships</span><span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="experienceSection" class="resume-section-body">
+                            <div id="experienceList"></div>
+                            <button class="rb-add-btn" onclick="addExperience()">+ Add Experience</button>
+                        </div>
+                    </div>
+
+                    <!-- Projects -->
+                    <div class="resume-section-card">
+                        <div class="resume-section-title" onclick="toggleResumeSection('projectsSection')">
+                            <span>🚀 Projects</span><span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="projectsSection" class="resume-section-body">
+                            <div id="projectsList"></div>
+                            <button class="rb-add-btn" onclick="addProject()">+ Add Project</button>
+                        </div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="resume-section-card">
+                        <div class="resume-section-title" onclick="toggleResumeSection('skillsSection')">
+                            <span>🛠️ Skills</span><span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="skillsSection" class="resume-section-body">
+                            <label class="rb-label">Skills (comma separated)</label>
+                            <input id="rb_skills" class="rb-input" type="text"
+                                placeholder="JavaScript, React, Node.js, Python, Git" oninput="updatePreview()" />
+                            <div style="margin-top:var(--spacing-sm);">
+                                <button class="rb-add-btn" onclick="importSkillsFromProfile()"
+                                    style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--color-primary-light);">
+                                    ✨ Import from my Skill Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certifications -->
+                    <div class="resume-section-card">
+                        <div class="resume-section-title" onclick="toggleResumeSection('certsSection')">
+                            <span>🏆 Certifications</span><span class="toggle-icon">▼</span>
+                        </div>
+                        <div id="certsSection" class="resume-section-body">
+                            <div id="certsList"></div>
+                            <button class="rb-add-btn" onclick="addCertification()">+ Add Certification</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: Live Preview -->
+                <div class="resume-preview-panel">
+                    <div class="resume-preview-header">
+                        <span>👁 Live Preview</span>
+                        <button class="btn btn-primary" onclick="downloadResumePDF()"
+                            style="font-size:0.8rem;padding:0.4rem 1rem;">🖨️ Print / Save PDF</button>
+                    </div>
+                    <div class="resume-preview-wrapper">
+                        <div id="resumePreview" class="resume-template">
+                            <!-- Live preview rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </main>
 
     <!-- Add Company Modal (will be created dynamically) -->
