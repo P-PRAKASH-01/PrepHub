@@ -10,26 +10,14 @@
   "background_color": "#0f0f23",
   "icons": [
     {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icons/icon-512.png",
+      "src": "icons/Logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icons/icon-512.png",
-      "sizes": "512x512",
+      "src": "icons/Logo.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     }
@@ -47,7 +35,7 @@
       "url": "/?view=jobs",
       "icons": [
         {
-          "src": "icons/icon-192.png",
+          "src": "icons/Logo.png",
           "sizes": "192x192"
         }
       ]
@@ -59,7 +47,7 @@
       "url": "/?view=jdanalyzer",
       "icons": [
         {
-          "src": "icons/icon-192.png",
+          "src": "icons/Logo.png",
           "sizes": "192x192"
         }
       ]
@@ -71,7 +59,7 @@
       "url": "/?view=skills",
       "icons": [
         {
-          "src": "icons/icon-192.png",
+          "src": "icons/Logo.png",
           "sizes": "192x192"
         }
       ]
