@@ -2,8 +2,8 @@
   "name": "PrepHub - Career Preparation Portal",
   "short_name": "PrepHub",
   "description": "Student-focused skill preparation portal for pre-internship and pre-job readiness. Track companies, analyze skill gaps, and prepare effectively.",
-  "start_url": "index.html",
-  "scope": "./",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "theme_color": "#6366f1",
@@ -13,13 +13,25 @@
       "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
-      "src": "icons/Logo.png",
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "categories": [
@@ -27,13 +39,12 @@
     "productivity",
     "utilities"
   ],
-  "screenshots": [],
   "shortcuts": [
     {
-      "name": "Add Company",
-      "short_name": "Add",
-      "description": "Add a new company to track",
-      "url": "/?action=add",
+      "name": "Browse Jobs",
+      "short_name": "Jobs",
+      "description": "Search and browse job listings",
+      "url": "/?view=jobs",
       "icons": [
         {
           "src": "icons/icon-192.png",
@@ -42,7 +53,19 @@
       ]
     },
     {
-      "name": "Skill Gap Analysis",
+      "name": "JD Analyzer",
+      "short_name": "Analyzer",
+      "description": "Analyze a job description for skill match",
+      "url": "/?view=jdanalyzer",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Skill Gap",
       "short_name": "Skills",
       "description": "View your skill gap analysis",
       "url": "/?view=skills",
