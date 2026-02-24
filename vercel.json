@@ -1,33 +1,12 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
+      "source": "/api/jobs",
+      "destination": "/api/jobs.js"
     },
     {
-      "src": "*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static",
-      "config": {
-        "ignore": ["server.js"]
-      }
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "manifest.json",
-      "use": "@vercel/static"
+      "source": "/api/health",
+      "destination": "/api/health.js"
     }
-  ],
-  "routes": [
-    { "src": "/api/jobs", "dest": "/api/jobs.js" },
-    { "src": "/api/health", "dest": "/api/health.js" },
-    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
