@@ -6,7 +6,7 @@
 
 ## 🌟 Overview
 
-PrepHub is a free, offline-first web platform designed to help students prepare strategically for internships and full-time roles.
+PrepHub is a Open Source, offline-first web platform designed to help students prepare strategically for internships and full-time roles.
 
 Unlike traditional job trackers, PrepHub focuses on:
 
