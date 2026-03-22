@@ -2,591 +2,586 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <link rel="apple-touch-icon" href="icons/Logo.png">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description"
-        content="PrepHub - Student-focused skill preparation portal for pre-internship and pre-job readiness. Track companies, analyze skill gaps, and prepare effectively.">
-    <meta name="keywords"
-        content="student internship, job preparation, skill gap analysis, career preparation, skill tracking">
-    <title>PrepHub - Master Your Career Preparation</title>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" href="icons/Logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+    content="PrepHub - Student-focused skill preparation portal for pre-internship and pre-job readiness. Track companies, analyze skill gaps, and prepare effectively.">
+  <meta name="keywords"
+    content="student internship, job preparation, skill gap analysis, career preparation, skill tracking">
+  <title>PrepHub - Master Your Career Preparation</title>
 
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
 
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#6366f1">
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#6366f1">
 
-    <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="icons/Logo.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-192.png">
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="icons/Logo.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-192.png">
 
-    <!-- iOS Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="PrepHub">
+  <!-- iOS Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PrepHub">
 
-    <!-- Microsoft Tiles -->
-    <meta name="msapplication-TileColor" content="#6366f1">
-    <meta name="msapplication-TileImage" content="icons/icon-192.png">
+  <!-- Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#6366f1">
+  <meta name="msapplication-TileImage" content="icons/icon-192.png">
 
-    <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css">
 
 </head>
 
 <body>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="logo">
-                <img src="icons/icon-192.png" alt="PrepHub" style="height:36px;width:auto;border-radius:8px;" />
-            </div>
-            <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-            </button>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#" class="nav-link active" data-view="dashboard">📊 Dashboard</a></li>
-                <li><a href="#" class="nav-link" data-view="companies">🏢 Companies</a></li>
-                <li><a href="#" class="nav-link" data-view="skills">🎯 Skill Gap</a></li>
-                <li><a href="#" class="nav-link" data-view="progress">📈 Progress</a></li>
-            </ul>
-            <button id="settingsBtn" class="settings-btn">
-                <span>⚙️</span>
-            </button>
-        </div>
-    </nav>
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="navbar-container">
+      <div class="logo">
+        <img src="icons/icon-192.png" alt="PrepHub" style="height:36px;width:auto;border-radius:8px;" />
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#" class="nav-link active" data-view="dashboard">📊 Dashboard</a></li>
+        <li><a href="#" class="nav-link" data-view="companies">🏢 Companies</a></li>
+        <li><a href="#" class="nav-link" data-view="skills">🎯 Skill Gap</a></li>
+        <li><a href="#" class="nav-link" data-view="progress">📈 Progress</a></li>
+      </ul>
+      <button id="settingsBtn" class="settings-btn">
+        <span>⚙️</span>
+      </button>
+    </div>
+  </nav>
 
-    <!-- Hero Section -->
-    <section class="hero" id="hero">
-        <div class="hero-container">
-            <h1>Master Your Career Preparation</h1>
-            <p>Track companies, identify skill gaps, and prepare effectively for your dream internship or job. Your
-                personalized preparation dashboard.</p>
-            <button class="hero-cta" id="getStartedBtn">
-                <span>Get Started</span>
-                <span>→</span>
-            </button>
-        </div>
-    </section>
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <div class="hero-container">
+      <h1>Master Your Career Preparation</h1>
+      <p>Track companies, identify skill gaps, and prepare effectively for your dream internship or job. Your
+        personalized preparation dashboard.</p>
+      <button class="hero-cta" id="getStartedBtn">
+        <span>Get Started</span>
+        <span>→</span>
+      </button>
+    </div>
+  </section>
 
-    <!-- Main Container -->
-    <main class="main-container">
+  <!-- Main Container -->
+  <main class="main-container">
 
-        <!-- Dashboard View (Default) -->
-        <div id="dashboardView" class="view-container">
-            <div class="section-header">
-                <h2 class="section-title">Your Preparation Overview</h2>
-            </div>
+    <!-- Dashboard View (Default) -->
+    <div id="dashboardView" class="view-container">
+      <div class="section-header">
+        <h2 class="section-title">Your Preparation Overview</h2>
+      </div>
 
-            <!-- Stats Cards -->
-            <div class="stats-carousel-wrapper">
-                <div class="dashboard-stats" id="statsCarousel">
-                    <div class="stat-card">
-                        <div class="stat-icon">🏢</div>
-                        <div class="stat-value" id="totalCompanies"></div>
-                        <div class="stat-label">Companies Tracked</div>
-                    </div>
+      <!-- Stats Cards -->
+      <div class="stats-carousel-wrapper">
+        <div class="dashboard-stats" id="statsCarousel">
+          <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value" id="totalCompanies"></div>
+            <div class="stat-label">Companies Tracked</div>
+          </div>
 
-                    <div class="stat-card secondary">
-                        <div class="stat-icon">⭐</div>
-                        <div class="stat-value" id="favoriteCount"></div>
-                        <div class="stat-label">Favorites</div>
-                    </div>
+          <div class="stat-card secondary">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="favoriteCount"></div>
+            <div class="stat-label">Favorites</div>
+          </div>
 
-                    <div class="stat-card success">
-                        <div class="stat-icon">🎯</div>
-                        <div class="stat-value" id="skillsNeeded"></div>
-                        <div class="stat-label">Skills to Master</div>
-                    </div>
+          <div class="stat-card success">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value" id="skillsNeeded"></div>
+            <div class="stat-label">Skills to Master</div>
+          </div>
 
-                    <div class="stat-card">
-                        <div class="stat-icon">📈</div>
-                        <div class="stat-value" id="overallProgress"></div>
-                        <div class="stat-label">Overall Progress</div>
-                    </div>
-                </div>
-
-                <!-- Carousel Dot Indicators (for mobile/tablet) -->
-                <div class="carousel-dots" id="carouselDots">
-                    <button class="dash active" data-slide="0"></button>
-                    <button class="dash" data-slide="1"></button>
-                    <button class="dash" data-slide="2"></button>
-                    <button class="dash" data-slide="3"></button>
-                </div>
-
-            </div>
-
-
-
-            <!-- Quick Actions -->
-            <div class="section-header">
-                <h2 class="section-title">Quick Actions</h2>
-            </div>
-
-            <div class="companies-grid">
-                <div class="company-card" id="addCompanyCard"
-                    style="border: 2px dashed var(--color-border); display: flex; align-items: center; justify-content: center; min-height: 200px; cursor: pointer;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">➕</div>
-                        <h3 style="color: var(--color-text-secondary);">Add New Company</h3>
-                    </div>
-                </div>
-
-                <div class="company-card" onclick="switchView('skills')"
-                    style="background: var(--gradient-primary); border: none;">
-                    <div style="text-align: center; padding: 2rem 0;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
-                        <h3>Analyze Skill Gaps</h3>
-                        <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Identify what you need to learn</p>
-                    </div>
-                </div>
-
-                <div class="company-card" onclick="switchView('resume')"
-                    style="background: linear-gradient(135deg, rgba(16,185,129,0.8), rgba(5,150,105,0.9)); border: none;">
-                    <div style="text-align: center; padding: 2rem 0;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
-                        <h3>Build Resume</h3>
-                        <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Create & download your resume</p>
-                    </div>
-                </div>
-
-                <div class="company-card" onclick="switchView('progress')"
-                    style="background: var(--gradient-success); border: none;">
-                    <div style="text-align: center; padding: 2rem 0;">
-                        <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
-                        <h3>Track Progress</h3>
-                        <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Monitor your preparation journey
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <!-- Favorite Companies -->
-            <div id="favoritesSection" class="hidden">
-                <div class="section-header" style="margin-top: 3rem;">
-                    <h2 class="section-title">⭐ Your Favorites</h2>
-                </div>
-                <div id="favoritesGrid" class="companies-grid"></div>
-            </div>
+          <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value" id="overallProgress"></div>
+            <div class="stat-label">Overall Progress</div>
+          </div>
         </div>
 
-        <!-- Companies View -->
-        <div id="companiesView" class="view-container hidden">
-            <div class="section-header">
-                <h2 class="section-title">Companies & Roles</h2>
-                <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;">
-                    <button class="btn btn-secondary" onclick="switchView('jdanalyzer')">
-                        <span>🔍</span><span>JD Analyzer</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="switchView('jobs')">
-                        <span>💼</span><span>Browse Jobs</span>
-                    </button>
-                    <button class="btn btn-primary" id="addCompanyBtn">
-                        <span>➕</span><span>Add Company</span>
-                    </button>
-                </div>
-            </div>
-
-            <div id="companiesGrid" class="companies-grid">
-                <!-- Companies will be rendered here -->
-            </div>
-
-            <div id="emptyCompanies" class="empty-state">
-                <div class="empty-icon">🏢</div>
-                <h3>No Companies Tracked Yet</h3>
-                <p>Start by adding companies you're interested in to track their requirements and prepare effectively.
-                </p>
-                <button class="btn btn-primary" onclick="showAddCompanyModal()">
-                    <span>➕</span>
-                    <span>Add Your First Company</span>
-                </button>
-            </div>
+        <!-- Carousel Dot Indicators (for mobile/tablet) -->
+        <div class="carousel-dots" id="carouselDots">
+          <button class="dash active" data-slide="0"></button>
+          <button class="dash" data-slide="1"></button>
+          <button class="dash" data-slide="2"></button>
+          <button class="dash" data-slide="3"></button>
         </div>
 
-        <!-- Company Detail View -->
-        <div id="companyDetailView" class="view-container hidden">
-            <!-- Company detail content will be rendered here dynamically -->
+      </div>
+
+
+
+      <!-- Quick Actions -->
+      <div class="section-header">
+        <h2 class="section-title">Quick Actions</h2>
+      </div>
+
+      <div class="companies-grid">
+        <div class="company-card" id="addCompanyCard"
+          style="border: 2px dashed var(--color-border); display: flex; align-items: center; justify-content: center; min-height: 200px; cursor: pointer;">
+          <div style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">➕</div>
+            <h3 style="color: var(--color-text-secondary);">Add New Company</h3>
+          </div>
         </div>
 
-        <!-- Skill Gap Analysis View -->
-        <div id="skillsView" class="view-container hidden">
-            <div class="section-header">
-                <h2 class="section-title">Skill Gap Analysis</h2>
-                <button class="btn btn-secondary" onclick="switchView('dashboard')">
-                    <span>←</span>
-                    <span>Back to Dashboard</span>
-                </button>
-            </div>
-
-            <div id="gapAnalysisContainer">
-                <!-- Gap analysis will be rendered here -->
-            </div>
-
-            <div id="emptySkills" class="empty-state">
-                <div class="empty-icon">🎯</div>
-                <h3>No Skill Data Available</h3>
-                <p>Add companies and define your current skills to see your skill gap analysis.</p>
-            </div>
+        <div class="company-card" onclick="switchView('skills')"
+          style="background: var(--gradient-primary); border: none;">
+          <div style="text-align: center; padding: 2rem 0;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+            <h3>Analyze Skill Gaps</h3>
+            <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Identify what you need to learn</p>
+          </div>
         </div>
 
-        <!-- Progress Tracking View -->
-        <div id="progressView" class="view-container hidden">
-            <div class="section-header">
-                <h2 class="section-title">Your Progress</h2>
-                <button class="btn btn-secondary" onclick="switchView('dashboard')">
-                    <span>←</span>
-                    <span>Back to Dashboard</span>
-                </button>
-            </div>
-
-            <div id="progressContainer" class="progress-list">
-                <!-- Progress items will be rendered here -->
-            </div>
-
-            <div id="emptyProgress" class="empty-state">
-                <div class="empty-icon">📈</div>
-                <h3>Start Your Preparation Journey</h3>
-                <p>As you add companies and work on skills, your progress will be tracked here.</p>
-            </div>
+        <div class="company-card" onclick="switchView('resume')"
+          style="background: linear-gradient(135deg, rgba(16,185,129,0.8), rgba(5,150,105,0.9)); border: none;">
+          <div style="text-align: center; padding: 2rem 0;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
+            <h3>Build Resume</h3>
+            <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Create & download your resume</p>
+          </div>
         </div>
 
-
-        <!-- Jobs View -->
-        <div id="jobsView" class="view-container hidden">
-            <div class="section-header">
-                <h2 class="section-title">💼 Job Listings</h2>
-                <button class="btn btn-secondary" onclick="switchView('dashboard')">
-                    <span>←</span>
-                    <span>Back to Dashboard</span>
-                </button>
-            </div>
-
-            <!-- Workflow Note Banner -->
-            <div class="jobs-workflow-note">
-                <span class="jobs-note-icon">💡</span>
-                <div>
-                    <strong>How to get required skills:</strong>
-                    Click <strong>Apply</strong> on any job → Copy the full job description → Paste it into <strong>🔍
-                        JD Analyzer</strong> to extract required skills and see your match score.
-                </div>
-            </div>
-
-            <!-- Search Bar -->
-            <div class="jobs-search-bar" id="jobsSearchBar">
-                <div class="jobs-search-inputs">
-                    <div class="search-input-wrap">
-                        <span class="search-icon">🔍</span>
-                        <input type="text" id="jobKeyword" placeholder="Job title, skills, keywords..."
-                            class="jobs-search-input" />
-                    </div>
-                    <div class="search-input-wrap">
-                        <span class="search-icon">📍</span>
-                        <input type="text" id="jobLocation" placeholder="Location (e.g. India, Remote)"
-                            class="jobs-search-input" value="India" />
-                    </div>
-                    <select id="jobCountry" class="jobs-select">
-                        <option value="in">🇮🇳 India</option>
-                        <option value="gb">🇬🇧 UK</option>
-                        <option value="us">🇺🇸 USA</option>
-                        <option value="au">🇦🇺 Australia</option>
-                        <option value="ca">🇨🇦 Canada</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="searchJobs()">
-                        <span>🔍</span><span>Search</span>
-                    </button>
-                </div>
-                <div class="jobs-quick-tags" id="jobsQuickTags">
-                    <!-- Quick tag chips rendered from user skills -->
-                </div>
-                <div id="adzunaKeyStatus" class="adzuna-key-status"></div>
-            </div>
-
-            <!-- Results -->
-            <div id="jobsResults">
-                <div id="jobsLoading" class="jobs-loading hidden">
-                    <div class="jobs-spinner"></div>
-                    <p>Searching live jobs...</p>
-                </div>
-                <div id="jobsGrid" class="jobs-grid"></div>
-                <div id="jobsEmpty" class="empty-state hidden">
-                    <div class="empty-icon">💼</div>
-                    <h3>No Jobs Found</h3>
-                    <p>Try different keywords or a broader location.</p>
-                </div>
-                <div id="jobsError" class="jobs-error hidden"></div>
-                <div id="jobsPagination" class="jobs-pagination hidden">
-                    <button class="btn btn-secondary" id="jobsPrevBtn" onclick="loadJobsPage(-1)">← Previous</button>
-                    <span id="jobsPageInfo" style="color:var(--color-text-secondary);font-size:0.9rem;"></span>
-                    <button class="btn btn-primary" id="jobsNextBtn" onclick="loadJobsPage(1)">Next →</button>
-                </div>
-            </div>
+        <div class="company-card" onclick="switchView('progress')"
+          style="background: var(--gradient-success); border: none;">
+          <div style="text-align: center; padding: 2rem 0;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
+            <h3>Track Progress</h3>
+            <p style="color: rgba(255,255,255,0.8); margin-top: 0.5rem;">Monitor your preparation journey
+            </p>
+          </div>
         </div>
+      </div>
 
 
-        <!-- JD Analyzer View -->
-        <div id="jdanalyzerView" class="view-container hidden">
-            <div class="section-header">
-                <h2 class="section-title">🔍 JD Analyzer</h2>
-                <button class="btn btn-secondary" onclick="switchView('dashboard')">
-                    <span>←</span><span>Back to Dashboard</span>
-                </button>
-            </div>
 
-            <!-- Input Section -->
-            <div class="jda-input-card">
-                <div class="jda-input-header">
-                    <div>
-                        <h3>Paste Job Description</h3>
-                        <p>Paste any job description and we'll instantly analyze the required skills against your
-                            profile.</p>
-                    </div>
-                </div>
-
-                <div
-                    style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--spacing-md); margin-bottom:var(--spacing-md);">
-                    <div>
-                        <label class="jda-label">Company Name <span
-                                style="color:var(--color-text-tertiary)">(optional)</span></label>
-                        <input type="text" id="jdaCompanyName" class="jda-input" placeholder="e.g. Google" />
-                    </div>
-                    <div>
-                        <label class="jda-label">Role / Position <span
-                                style="color:var(--color-text-tertiary)">(optional)</span></label>
-                        <input type="text" id="jdaRoleName" class="jda-input"
-                            placeholder="e.g. Frontend Developer Intern" />
-                    </div>
-                </div>
-
-                <label class="jda-label">Job Description *</label>
-                <textarea id="jdaText" class="jda-textarea"
-                    placeholder="Paste the full job description here...&#10;&#10;Example:&#10;We are looking for a React developer with experience in Node.js, MongoDB, and REST APIs. The candidate should know Git, Docker, and have good understanding of TypeScript..."></textarea>
-
-                <div style="display:flex; gap:var(--spacing-md); margin-top:var(--spacing-md); flex-wrap:wrap;">
-                    <button class="btn btn-primary" onclick="analyzeJD()">
-                        <span>🔍</span><span>Analyze JD</span>
-                    </button>
-                    <button class="btn btn-secondary" onclick="clearJDA()">
-                        <span>🗑️</span><span>Clear</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Results Section -->
-            <div id="jdaResults" class="hidden">
-
-                <!-- Match Score -->
-                <div class="jda-score-card">
-                    <div class="jda-score-circle" id="jdaScoreCircle">
-                        <span id="jdaScoreValue">0%</span>
-                        <small>Match</small>
-                    </div>
-                    <div class="jda-score-info">
-                        <h3 id="jdaScoreTitle">Your Match Score</h3>
-                        <p id="jdaScoreMsg" style="color:var(--color-text-secondary);"></p>
-                        <div class="jda-score-bar-wrap">
-                            <div class="jda-score-bar" id="jdaScoreBar"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Skills Grid -->
-                <div class="jda-skills-grid">
-                    <!-- You Have -->
-                    <div class="jda-skills-box have">
-                        <h4>✅ Skills You Have <span id="jdaHaveCount" class="jda-count"></span></h4>
-                        <div id="jdaHaveSkills" class="jda-chips"></div>
-                    </div>
-                    <!-- You Need -->
-                    <div class="jda-skills-box need">
-                        <h4>❌ Skills to Learn <span id="jdaNeedCount" class="jda-count"></span></h4>
-                        <div id="jdaNeedSkills" class="jda-chips"></div>
-                    </div>
-                </div>
-
-                <!-- All Detected Skills -->
-                <div id="jdaAllSkillsSection" class="jda-all-skills-card">
-                    <h4>🎯 All Detected Skills</h4>
-                    <div id="jdaAllSkills" class="jda-chips" style="margin-top:var(--spacing-md);"></div>
-                </div>
-
-                <!-- No Skills Found -->
-                <div id="jdaNoSkills" class="hidden" style="text-align:center; padding:var(--spacing-2xl);">
-                    <div style="font-size:3rem;">🤔</div>
-                    <h3 style="margin:var(--spacing-md) 0 var(--spacing-sm);">No Recognizable Skills Found</h3>
-                    <p style="color:var(--color-text-secondary);">The JD may use different terminology. Try pasting a
-                        more detailed description or add skills manually in the Skill Gap section.</p>
-                </div>
-
-                <!-- Add to Tracker -->
-                <div id="jdaAddTracker" class="jda-add-tracker hidden">
-                    <div>
-                        <h4>Add to Company Tracker</h4>
-                        <p style="color:var(--color-text-secondary);font-size:0.9rem;">Save this role with all detected
-                            skills pre-filled.</p>
-                    </div>
-                    <button class="btn btn-primary" onclick="addJDAToTracker()">
-                        <span>➕</span><span>Add to Tracker</span>
-                    </button>
-                </div>
-            </div>
+      <!-- Favorite Companies -->
+      <div id="favoritesSection" class="hidden">
+        <div class="section-header" style="margin-top: 3rem;">
+          <h2 class="section-title">⭐ Your Favorites</h2>
         </div>
+        <div id="favoritesGrid" class="companies-grid"></div>
+      </div>
+    </div>
 
-
-        <!-- Resume Builder View -->
-        <div id="resumeView" class="view-container hidden">
-            <div class="section-header">
-                <h2 class="section-title">📄 Resume Builder</h2>
-                <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;align-items:center;">
-                    <button class="btn btn-secondary" onclick="resetResume()">🔄 Reset</button>
-                    <input id="rb_pdf_name" class="rb-input" type="text"
-                        placeholder="PDF filename (e.g. Prakash_Resume)"
-                        style="width:220px;padding:0.5rem 0.9rem;font-size:0.875rem;" />
-                    <button class="btn btn-primary" onclick="downloadResumePDF()">🖨️ Print / Save PDF</button>
-                </div>
-            </div>
-
-            <div class="resume-builder-layout">
-
-                <!-- LEFT: Form -->
-                <div class="resume-form-panel">
-
-                    <!-- Personal Info -->
-                    <div class="resume-section-card">
-                        <div class="resume-section-title" onclick="toggleResumeSection('personalSection')">
-                            <span>👤 Personal Info</span><span class="toggle-icon">▼</span>
-                        </div>
-                        <div id="personalSection" class="resume-section-body">
-                            <div class="rb-grid-2">
-                                <div><label class="rb-label">Full Name *</label><input id="rb_name" class="rb-input"
-                                        type="text" placeholder="Prakash P" oninput="updatePreview()" /></div>
-                                <div><label class="rb-label">Job Title / Role</label><input id="rb_title"
-                                        class="rb-input" type="text" placeholder="Frontend Developer"
-                                        oninput="updatePreview()" /></div>
-                                <div><label class="rb-label">Email *</label><input id="rb_email" class="rb-input"
-                                        type="email" placeholder="prakash@email.com" oninput="updatePreview()" /></div>
-                                <div><label class="rb-label">Phone</label><input id="rb_phone" class="rb-input"
-                                        type="text" placeholder="+91 9876543210" oninput="updatePreview()" /></div>
-                                <div><label class="rb-label">Location</label><input id="rb_location" class="rb-input"
-                                        type="text" placeholder="Chennai, India" oninput="updatePreview()" /></div>
-                                <div><label class="rb-label">LinkedIn</label><input id="rb_linkedin" class="rb-input"
-                                        type="text" placeholder="linkedin.com/in/prakash" oninput="updatePreview()" />
-                                </div>
-                                <div><label class="rb-label">GitHub</label><input id="rb_github" class="rb-input"
-                                        type="text" placeholder="github.com/prakash" oninput="updatePreview()" /></div>
-                                <div><label class="rb-label">Portfolio / Website</label><input id="rb_website"
-                                        class="rb-input" type="text" placeholder="prakash.dev"
-                                        oninput="updatePreview()" /></div>
-                            </div>
-                            <div style="margin-top:var(--spacing-md);">
-                                <label class="rb-label">Professional Summary</label>
-                                <textarea id="rb_summary" class="rb-textarea" rows="3"
-                                    placeholder="A passionate frontend developer with experience in React, Node.js..."
-                                    oninput="updatePreview()"></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Education -->
-                    <div class="resume-section-card">
-                        <div class="resume-section-title" onclick="toggleResumeSection('educationSection')">
-                            <span>🎓 Education</span><span class="toggle-icon">▼</span>
-                        </div>
-                        <div id="educationSection" class="resume-section-body">
-                            <div id="educationList"></div>
-                            <button class="rb-add-btn" onclick="addEducation()">+ Add Education</button>
-                        </div>
-                    </div>
-
-                    <!-- Experience -->
-                    <div class="resume-section-card">
-                        <div class="resume-section-title" onclick="toggleResumeSection('experienceSection')">
-                            <span>💼 Experience / Internships</span><span class="toggle-icon">▼</span>
-                        </div>
-                        <div id="experienceSection" class="resume-section-body">
-                            <div id="experienceList"></div>
-                            <button class="rb-add-btn" onclick="addExperience()">+ Add Experience</button>
-                        </div>
-                    </div>
-
-                    <!-- Projects -->
-                    <div class="resume-section-card">
-                        <div class="resume-section-title" onclick="toggleResumeSection('projectsSection')">
-                            <span>🚀 Projects</span><span class="toggle-icon">▼</span>
-                        </div>
-                        <div id="projectsSection" class="resume-section-body">
-                            <div id="projectsList"></div>
-                            <button class="rb-add-btn" onclick="addProject()">+ Add Project</button>
-                        </div>
-                    </div>
-
-                    <!-- Skills -->
-                    <div class="resume-section-card">
-                        <div class="resume-section-title" onclick="toggleResumeSection('skillsSection')">
-                            <span>🛠️ Skills</span><span class="toggle-icon">▼</span>
-                        </div>
-                        <div id="skillsSection" class="resume-section-body">
-                            <label class="rb-label">Skills (comma separated)</label>
-                            <input id="rb_skills" class="rb-input" type="text"
-                                placeholder="JavaScript, React, Node.js, Python, Git" oninput="updatePreview()" />
-                            <div style="margin-top:var(--spacing-sm);">
-                                <button class="rb-add-btn" onclick="importSkillsFromProfile()"
-                                    style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--color-primary-light);">
-                                    ✨ Import from my Skill Profile
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Certifications -->
-                    <div class="resume-section-card">
-                        <div class="resume-section-title" onclick="toggleResumeSection('certsSection')">
-                            <span>🏆 Certifications</span><span class="toggle-icon">▼</span>
-                        </div>
-                        <div id="certsSection" class="resume-section-body">
-                            <div id="certsList"></div>
-                            <button class="rb-add-btn" onclick="addCertification()">+ Add Certification</button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- RIGHT: Live Preview -->
-                <div class="resume-preview-panel">
-                    <div class="resume-preview-header">
-                        <span>👁 Live Preview</span>
-                        <button class="btn btn-primary" onclick="downloadResumePDF()"
-                            style="font-size:0.8rem;padding:0.4rem 1rem;">🖨️ Print / Save PDF</button>
-                    </div>
-                    <div class="resume-preview-wrapper">
-                        <div id="resumePreview" class="resume-template">
-                            <!-- Live preview rendered here -->
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+    <!-- Companies View -->
+    <div id="companiesView" class="view-container hidden">
+      <div class="section-header">
+        <h2 class="section-title">Companies & Roles</h2>
+        <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;">
+          <button class="btn btn-secondary" onclick="switchView('jdanalyzer')">
+            <span>🔍</span><span>JD Analyzer</span>
+          </button>
+          <button class="btn btn-secondary" onclick="switchView('jobs')">
+            <span>💼</span><span>Browse Jobs</span>
+          </button>
+          <button class="btn btn-primary" id="addCompanyBtn">
+            <span>➕</span><span>Add Company</span>
+          </button>
         </div>
-    </main>
+      </div>
 
-    <!-- Add Company Modal (will be created dynamically) -->
-    <div id="modalOverlay" class="hidden"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-        <div id="modalContent"
-            style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: 2rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
-            <!-- Modal content will be inserted here -->
-        </div>
+      <div id="companiesGrid" class="companies-grid">
+        <!-- Companies will be rendered here -->
+      </div>
+
+      <div id="emptyCompanies" class="empty-state">
+        <div class="empty-icon">🏢</div>
+        <h3>No Companies Tracked Yet</h3>
+        <p>Start by adding companies you're interested in to track their requirements and prepare effectively.
+        </p>
+        <button class="btn btn-primary" onclick="showAddCompanyModal()">
+          <span>➕</span>
+          <span>Add Your First Company</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Company Detail View -->
+    <div id="companyDetailView" class="view-container hidden">
+      <!-- Company detail content will be rendered here dynamically -->
+    </div>
+
+    <!-- Skill Gap Analysis View -->
+    <div id="skillsView" class="view-container hidden">
+      <div class="section-header">
+        <h2 class="section-title">Skill Gap Analysis</h2>
+        <button class="btn btn-secondary" onclick="switchView('dashboard')">
+          <span>←</span>
+          <span>Back to Dashboard</span>
+        </button>
+      </div>
+
+      <div id="gapAnalysisContainer">
+        <!-- Gap analysis will be rendered here -->
+      </div>
+
+      <div id="emptySkills" class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <h3>No Skill Data Available</h3>
+        <p>Add companies and define your current skills to see your skill gap analysis.</p>
+      </div>
+    </div>
+
+    <!-- Progress Tracking View -->
+    <div id="progressView" class="view-container hidden">
+      <div class="section-header">
+        <h2 class="section-title">Your Progress</h2>
+        <button class="btn btn-secondary" onclick="switchView('dashboard')">
+          <span>←</span>
+          <span>Back to Dashboard</span>
+        </button>
+      </div>
+
+      <div id="progressContainer" class="progress-list">
+        <!-- Progress items will be rendered here -->
+      </div>
+
+      <div id="emptyProgress" class="empty-state">
+        <div class="empty-icon">📈</div>
+        <h3>Start Your Preparation Journey</h3>
+        <p>As you add companies and work on skills, your progress will be tracked here.</p>
+      </div>
     </div>
 
 
+    <!-- Jobs View -->
+    <div id="jobsView" class="view-container hidden">
+      <div class="section-header">
+        <h2 class="section-title">💼 Job Listings</h2>
+        <button class="btn btn-secondary" onclick="switchView('dashboard')">
+          <span>←</span>
+          <span>Back to Dashboard</span>
+        </button>
+      </div>
+
+      <!-- Workflow Note Banner -->
+      <div class="jobs-workflow-note">
+        <span class="jobs-note-icon">💡</span>
+        <div>
+          <strong>How to get required skills:</strong>
+          Click <strong>Apply</strong> on any job → Copy the full job description → Paste it into <strong>🔍
+            JD Analyzer</strong> to extract required skills and see your match score.
+        </div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="jobs-search-bar" id="jobsSearchBar">
+        <div class="jobs-search-inputs">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="jobKeyword" placeholder="Job title, skills, keywords..." class="jobs-search-input" />
+          </div>
+          <div class="search-input-wrap">
+            <span class="search-icon">📍</span>
+            <input type="text" id="jobLocation" placeholder="Location (e.g. India, Remote)" class="jobs-search-input"
+              value="India" />
+          </div>
+          <select id="jobCountry" class="jobs-select">
+            <option value="in">🇮🇳 India</option>
+            <option value="gb">🇬🇧 UK</option>
+            <option value="us">🇺🇸 USA</option>
+            <option value="au">🇦🇺 Australia</option>
+            <option value="ca">🇨🇦 Canada</option>
+          </select>
+          <button class="btn btn-primary" onclick="searchJobs()">
+            <span>🔍</span><span>Search</span>
+          </button>
+        </div>
+        <div class="jobs-quick-tags" id="jobsQuickTags">
+          <!-- Quick tag chips rendered from user skills -->
+        </div>
+        <div id="adzunaKeyStatus" class="adzuna-key-status"></div>
+      </div>
+
+      <!-- Results -->
+      <div id="jobsResults">
+        <div id="jobsLoading" class="jobs-loading hidden">
+          <div class="jobs-spinner"></div>
+          <p>Searching live jobs...</p>
+        </div>
+        <div id="jobsGrid" class="jobs-grid"></div>
+        <div id="jobsEmpty" class="empty-state hidden">
+          <div class="empty-icon">💼</div>
+          <h3>No Jobs Found</h3>
+          <p>Try different keywords or a broader location.</p>
+        </div>
+        <div id="jobsError" class="jobs-error hidden"></div>
+        <div id="jobsPagination" class="jobs-pagination hidden">
+          <button class="btn btn-secondary" id="jobsPrevBtn" onclick="loadJobsPage(-1)">← Previous</button>
+          <span id="jobsPageInfo" style="color:var(--color-text-secondary);font-size:0.9rem;"></span>
+          <button class="btn btn-primary" id="jobsNextBtn" onclick="loadJobsPage(1)">Next →</button>
+        </div>
+      </div>
+    </div>
 
 
-    <script src="script.js"></script>
+    <!-- JD Analyzer View -->
+    <div id="jdanalyzerView" class="view-container hidden">
+      <div class="section-header">
+        <h2 class="section-title">🔍 JD Analyzer</h2>
+        <button class="btn btn-secondary" onclick="switchView('dashboard')">
+          <span>←</span><span>Back to Dashboard</span>
+        </button>
+      </div>
+
+      <!-- Input Section -->
+      <div class="jda-input-card">
+        <div class="jda-input-header">
+          <div>
+            <h3>Paste Job Description</h3>
+            <p>Paste any job description and we'll instantly analyze the required skills against your
+              profile.</p>
+          </div>
+        </div>
+
+        <div
+          style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:var(--spacing-md); margin-bottom:var(--spacing-md);">
+          <div>
+            <label class="jda-label">Company Name <span
+                style="color:var(--color-text-tertiary)">(optional)</span></label>
+            <input type="text" id="jdaCompanyName" class="jda-input" placeholder="e.g. Google" />
+          </div>
+          <div>
+            <label class="jda-label">Role / Position <span
+                style="color:var(--color-text-tertiary)">(optional)</span></label>
+            <input type="text" id="jdaRoleName" class="jda-input" placeholder="e.g. Frontend Developer Intern" />
+          </div>
+        </div>
+
+        <label class="jda-label">Job Description *</label>
+        <textarea id="jdaText" class="jda-textarea"
+          placeholder="Paste the full job description here...&#10;&#10;Example:&#10;We are looking for a React developer with experience in Node.js, MongoDB, and REST APIs. The candidate should know Git, Docker, and have good understanding of TypeScript..."></textarea>
+
+        <div style="display:flex; gap:var(--spacing-md); margin-top:var(--spacing-md); flex-wrap:wrap;">
+          <button id="jdaAnalyzeBtn" class="btn btn-primary" onclick="analyzeJD()">
+            <span>🔍</span><span>Analyze JD</span>
+          </button>
+          <button class="btn btn-secondary" onclick="clearJDA()">
+            <span>🗑️</span><span>Clear</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="jdaResults" class="hidden">
+
+        <!-- Match Score -->
+        <div class="jda-score-card">
+          <div class="jda-score-circle" id="jdaScoreCircle">
+            <span id="jdaScoreValue">0%</span>
+            <small>Match</small>
+          </div>
+          <div class="jda-score-info">
+            <h3 id="jdaScoreTitle">Your Match Score</h3>
+            <p id="jdaScoreMsg" style="color:var(--color-text-secondary);"></p>
+            <div class="jda-score-bar-wrap">
+              <div class="jda-score-bar" id="jdaScoreBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills Grid -->
+        <div class="jda-skills-grid">
+          <!-- You Have -->
+          <div class="jda-skills-box have">
+            <h4>✅ Skills You Have <span id="jdaHaveCount" class="jda-count"></span></h4>
+            <div id="jdaHaveSkills" class="jda-chips"></div>
+          </div>
+          <!-- You Need -->
+          <div class="jda-skills-box need">
+            <h4>❌ Skills to Learn <span id="jdaNeedCount" class="jda-count"></span></h4>
+            <div id="jdaNeedSkills" class="jda-chips"></div>
+          </div>
+        </div>
+
+        <!-- All Detected Skills -->
+        <div id="jdaAllSkillsSection" class="jda-all-skills-card">
+          <h4>🎯 All Detected Skills <span id="jdaSourceBadge" style="display:none"></span></h4>
+          <div id="jdaAllSkills" class="jda-chips" style="margin-top:var(--spacing-md);"></div>
+        </div>
+
+        <!-- No Skills Found -->
+        <div id="jdaNoSkills" class="hidden" style="text-align:center; padding:var(--spacing-2xl);">
+          <div style="font-size:3rem;">🤔</div>
+          <h3 style="margin:var(--spacing-md) 0 var(--spacing-sm);">No Recognizable Skills Found</h3>
+          <p style="color:var(--color-text-secondary);">The JD may use different terminology. Try pasting a
+            more detailed description or add skills manually in the Skill Gap section.</p>
+        </div>
+
+        <!-- Add to Tracker -->
+        <div id="jdaAddTracker" class="jda-add-tracker hidden">
+          <div>
+            <h4>Add to Company Tracker</h4>
+            <p style="color:var(--color-text-secondary);font-size:0.9rem;">Save this role with all detected
+              skills pre-filled.</p>
+          </div>
+          <button class="btn btn-primary" onclick="addJDAToTracker()">
+            <span>➕</span><span>Add to Tracker</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Resume Builder View -->
+    <div id="resumeView" class="view-container hidden">
+      <div class="section-header">
+        <h2 class="section-title">📄 Resume Builder</h2>
+        <div style="display:flex;gap:var(--spacing-sm);flex-wrap:wrap;align-items:center;">
+          <button class="btn btn-secondary" onclick="resetResume()">🔄 Reset</button>
+          <input id="rb_pdf_name" class="rb-input" type="text" placeholder="PDF filename (e.g. Prakash_Resume)"
+            style="width:220px;padding:0.5rem 0.9rem;font-size:0.875rem;" />
+          <button class="btn btn-primary" onclick="downloadResumePDF()">🖨️ Print / Save PDF</button>
+        </div>
+      </div>
+
+      <div class="resume-builder-layout">
+
+        <!-- LEFT: Form -->
+        <div class="resume-form-panel">
+
+          <!-- Personal Info -->
+          <div class="resume-section-card">
+            <div class="resume-section-title" onclick="toggleResumeSection('personalSection')">
+              <span>👤 Personal Info</span><span class="toggle-icon">▼</span>
+            </div>
+            <div id="personalSection" class="resume-section-body">
+              <div class="rb-grid-2">
+                <div><label class="rb-label">Full Name *</label><input id="rb_name" class="rb-input" type="text"
+                    placeholder="Prakash P" oninput="updatePreview()" /></div>
+                <div><label class="rb-label">Job Title / Role</label><input id="rb_title" class="rb-input" type="text"
+                    placeholder="Frontend Developer" oninput="updatePreview()" /></div>
+                <div><label class="rb-label">Email *</label><input id="rb_email" class="rb-input" type="email"
+                    placeholder="prakash@email.com" oninput="updatePreview()" /></div>
+                <div><label class="rb-label">Phone</label><input id="rb_phone" class="rb-input" type="text"
+                    placeholder="+91 9876543210" oninput="updatePreview()" /></div>
+                <div><label class="rb-label">Location</label><input id="rb_location" class="rb-input" type="text"
+                    placeholder="Chennai, India" oninput="updatePreview()" /></div>
+                <div><label class="rb-label">LinkedIn</label><input id="rb_linkedin" class="rb-input" type="text"
+                    placeholder="linkedin.com/in/prakash" oninput="updatePreview()" />
+                </div>
+                <div><label class="rb-label">GitHub</label><input id="rb_github" class="rb-input" type="text"
+                    placeholder="github.com/prakash" oninput="updatePreview()" /></div>
+                <div><label class="rb-label">Portfolio / Website</label><input id="rb_website" class="rb-input"
+                    type="text" placeholder="prakash.dev" oninput="updatePreview()" /></div>
+              </div>
+              <div style="margin-top:var(--spacing-md);">
+                <label class="rb-label">Professional Summary</label>
+                <textarea id="rb_summary" class="rb-textarea" rows="3"
+                  placeholder="A passionate frontend developer with experience in React, Node.js..."
+                  oninput="updatePreview()"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Education -->
+          <div class="resume-section-card">
+            <div class="resume-section-title" onclick="toggleResumeSection('educationSection')">
+              <span>🎓 Education</span><span class="toggle-icon">▼</span>
+            </div>
+            <div id="educationSection" class="resume-section-body">
+              <div id="educationList"></div>
+              <button class="rb-add-btn" onclick="addEducation()">+ Add Education</button>
+            </div>
+          </div>
+
+          <!-- Experience -->
+          <div class="resume-section-card">
+            <div class="resume-section-title" onclick="toggleResumeSection('experienceSection')">
+              <span>💼 Experience / Internships</span><span class="toggle-icon">▼</span>
+            </div>
+            <div id="experienceSection" class="resume-section-body">
+              <div id="experienceList"></div>
+              <button class="rb-add-btn" onclick="addExperience()">+ Add Experience</button>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div class="resume-section-card">
+            <div class="resume-section-title" onclick="toggleResumeSection('projectsSection')">
+              <span>🚀 Projects</span><span class="toggle-icon">▼</span>
+            </div>
+            <div id="projectsSection" class="resume-section-body">
+              <div id="projectsList"></div>
+              <button class="rb-add-btn" onclick="addProject()">+ Add Project</button>
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="resume-section-card">
+            <div class="resume-section-title" onclick="toggleResumeSection('skillsSection')">
+              <span>🛠️ Skills</span><span class="toggle-icon">▼</span>
+            </div>
+            <div id="skillsSection" class="resume-section-body">
+              <label class="rb-label">Skills (comma separated)</label>
+              <input id="rb_skills" class="rb-input" type="text" placeholder="JavaScript, React, Node.js, Python, Git"
+                oninput="updatePreview()" />
+              <div style="margin-top:var(--spacing-sm);">
+                <button class="rb-add-btn" onclick="importSkillsFromProfile()"
+                  style="background:rgba(99,102,241,0.1);border-color:rgba(99,102,241,0.3);color:var(--color-primary-light);">
+                  ✨ Import from my Skill Profile
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Certifications -->
+          <div class="resume-section-card">
+            <div class="resume-section-title" onclick="toggleResumeSection('certsSection')">
+              <span>🏆 Certifications</span><span class="toggle-icon">▼</span>
+            </div>
+            <div id="certsSection" class="resume-section-body">
+              <div id="certsList"></div>
+              <button class="rb-add-btn" onclick="addCertification()">+ Add Certification</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT: Live Preview -->
+        <div class="resume-preview-panel">
+          <div class="resume-preview-header">
+            <span>👁 Live Preview</span>
+            <button class="btn btn-primary" onclick="downloadResumePDF()"
+              style="font-size:0.8rem;padding:0.4rem 1rem;">🖨️ Print / Save PDF</button>
+          </div>
+          <div class="resume-preview-wrapper">
+            <div id="resumePreview" class="resume-template">
+              <!-- Live preview rendered here -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Company Modal (will be created dynamically) -->
+  <div id="modalOverlay" class="hidden"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1rem;">
+    <div id="modalContent"
+      style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-xl); padding: 2rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto;">
+      <!-- Modal content will be inserted here -->
+    </div>
+  </div>
+
+
+
+
+  <script src="script.js"></script>
 </body>
 
 </html>

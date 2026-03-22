@@ -1571,22 +1571,174 @@ function addJobToTracker(company, role, location, description = '') {
 // JD Analyzer
 // ===================================
 
+// ---- State ----
 let jdaExtractedSkills = [];
+let jdaIsLoading = false;
 
-function analyzeJD() {
+// ---- HuggingFace API config ----
+// HF_TOKEN is injected by server.js via /api/config
+// Never hardcode token in frontend
+let HF_TOKEN = null;
+
+async function loadHFToken() {
+  try {
+    const res = await fetch('/api/config');
+    if (res.ok) {
+      const data = await res.json();
+      HF_TOKEN = data.hfToken || null;
+    }
+  } catch {
+    HF_TOKEN = null;
+  }
+}
+
+// Load token once on startup
+loadHFToken();
+
+// ---- Skill extraction via jobbert API ----
+async function extractSkillsFromJDBert(text) {
+  if (!HF_TOKEN) return null; // Fall back to rule-based
+
+  try {
+    const response = await fetch(
+      'https://api-inference.huggingface.co/models/jjzha/jobbert-skill-extraction',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${HF_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ inputs: text.substring(0, 512) }) // BERT token limit
+      }
+    );
+
+    if (!response.ok) return null;
+
+    const results = await response.json();
+
+    // HF returns array of token objects
+    if (!Array.isArray(results)) return null;
+
+    const found = new Set();
+    let currentEntity = [];
+
+    for (const token of results) {
+      const word  = (token.word || '').replace(/^##/, ''); // strip BERT subword prefix
+      const label = token.entity || token.entity_group || '';
+      const score = token.score || 0;
+
+      if (score < 0.75) { currentEntity = []; continue; }
+
+      if (label === 'B-SKILL' || label === 'LABEL_1') {
+        if (currentEntity.length) found.add(currentEntity.join('').trim());
+        currentEntity = [word];
+      } else if ((label === 'I-SKILL' || label === 'LABEL_2') && currentEntity.length) {
+        // Handle subword tokens — no space before ##
+        currentEntity.push(token.word?.startsWith('##') ? word : ' ' + word);
+      } else {
+        if (currentEntity.length) found.add(currentEntity.join('').trim());
+        currentEntity = [];
+      }
+    }
+    if (currentEntity.length) found.add(currentEntity.join('').trim());
+
+    // Filter noise
+    const BLACKLIST = new Set([
+      'team', 'plus', 'highly', 'core', 'ownership', 'define',
+      'performance', 'engineering', 'experience', 'background',
+      'knowledge', 'understanding', 'ability', 'skills', 'work',
+      'years', 'role', 'good', 'strong', 'solid', 'working',
+      'communication', 'interpersonal', 'analytical', 'motivated',
+      'information technology', 'digital banking', 'fast', 'great'
+    ]);
+
+    return [...found]
+      .map(s => s.trim())
+      .filter(s => s.length > 2 && !BLACKLIST.has(s.toLowerCase()))
+      .sort();
+
+  } catch {
+    return null; // Fall back to rule-based
+  }
+}
+
+// ---- Rule-based fallback (existing logic, kept intact) ----
+function extractSkillsFromText(text) {
+  if (!text) return [];
+  const lower = text.toLowerCase();
+  return KNOWN_SKILLS.filter(skill =>
+    lower.includes(skill.toLowerCase())
+  );
+}
+
+// ---- Main analyzeJD — now async ----
+async function analyzeJD() {
   const text = document.getElementById('jdaText').value.trim();
   if (!text) {
     showNotification('Please paste a job description first', 'error');
     return;
   }
 
-  // Extract skills from full JD text
-  jdaExtractedSkills = extractSkillsFromText(text);
+  if (jdaIsLoading) return;
 
-  const resultsEl = document.getElementById('jdaResults');
-  const noSkillsEl = document.getElementById('jdaNoSkills');
-  const allSkillsSection = document.getElementById('jdaAllSkillsSection');
-  const addTrackerEl = document.getElementById('jdaAddTracker');
+  // Show loading state on button
+  jdaIsLoading = true;
+  const btn = document.getElementById('jdaAnalyzeBtn');
+  const originalHTML = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="jda-spinner"></span> Analyzing...';
+  }
+
+  // Show source badge while loading
+  const sourceBadge = document.getElementById('jdaSourceBadge');
+  if (sourceBadge) sourceBadge.style.display = 'none';
+
+  try {
+    // Try jobbert API first, fall back to rule-based
+    const bertSkills = await extractSkillsFromJDBert(text);
+    let usedBert = false;
+
+    if (bertSkills && bertSkills.length > 0) {
+      // jobbert returned results — merge with rule-based for completeness
+      const ruleSkills = extractSkillsFromText(text);
+      const merged = new Set([...bertSkills, ...ruleSkills]);
+      jdaExtractedSkills = [...merged].sort();
+      usedBert = true;
+    } else {
+      // Fall back to rule-based KNOWN_SKILLS
+      jdaExtractedSkills = extractSkillsFromText(text);
+      usedBert = false;
+    }
+
+    // Show which engine was used
+    if (sourceBadge) {
+      sourceBadge.textContent = usedBert ? '⚡ AI-powered' : '📋 Rule-based';
+      sourceBadge.style.cssText = `
+        display: inline-block;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        background: ${usedBert ? 'rgba(16,185,129,0.15)' : 'rgba(107,114,128,0.15)'};
+        color: ${usedBert ? 'var(--color-success)' : 'var(--color-text-secondary)'};
+        border: 1px solid ${usedBert ? 'rgba(16,185,129,0.3)' : 'var(--color-border)'};
+        margin-left: 0.5rem;
+      `;
+    }
+
+  } finally {
+    jdaIsLoading = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalHTML;
+    }
+  }
+
+  // ---- Render results (same logic as before) ----
+  const resultsEl       = document.getElementById('jdaResults');
+  const noSkillsEl      = document.getElementById('jdaNoSkills');
+  const allSkillsSection= document.getElementById('jdaAllSkillsSection');
+  const addTrackerEl    = document.getElementById('jdaAddTracker');
 
   resultsEl.classList.remove('hidden');
 
@@ -1618,7 +1770,7 @@ function analyzeJD() {
   // Score
   const score = Math.round((haveSkills.length / jdaExtractedSkills.length) * 100);
 
-  // Score circle styling
+  // Score circle
   const circle = document.getElementById('jdaScoreCircle');
   circle.className = 'jda-score-circle ' + (score >= 70 ? 'high' : score >= 40 ? 'mid' : 'low');
   document.getElementById('jdaScoreValue').textContent = score + '%';
@@ -1633,21 +1785,21 @@ function analyzeJD() {
   // Score message
   const msgs = {
     high: `Great match! You have ${haveSkills.length} of ${jdaExtractedSkills.length} required skills. You're well prepared to apply!`,
-    mid: `Decent match. You have ${haveSkills.length} of ${jdaExtractedSkills.length} skills. Focus on learning ${needSkills.slice(0, 3).join(', ')}.`,
-    low: `Low match. You have ${haveSkills.length} of ${jdaExtractedSkills.length} skills. Build your foundation before applying.`
+    mid:  `Decent match. You have ${haveSkills.length} of ${jdaExtractedSkills.length} skills. Focus on learning ${needSkills.slice(0, 3).join(', ')}.`,
+    low:  `Low match. You have ${haveSkills.length} of ${jdaExtractedSkills.length} skills. Build your foundation before applying.`
   };
-  document.getElementById('jdaScoreMsg').textContent = score >= 70 ? msgs.high : score >= 40 ? msgs.mid : msgs.low;
+  document.getElementById('jdaScoreMsg').textContent   = score >= 70 ? msgs.high : score >= 40 ? msgs.mid : msgs.low;
   document.getElementById('jdaScoreTitle').textContent = score >= 70 ? '🎉 Strong Match!' : score >= 40 ? '📈 Growing Match' : '📚 Skills Gap Found';
 
   // Have skills
-  document.getElementById('jdaHaveCount').textContent = haveSkills.length;
-  document.getElementById('jdaHaveSkills').innerHTML = haveSkills.length > 0
+  document.getElementById('jdaHaveCount').textContent  = haveSkills.length;
+  document.getElementById('jdaHaveSkills').innerHTML   = haveSkills.length > 0
     ? haveSkills.map(s => `<span class="jda-chip have">✓ ${s}</span>`).join('')
     : '<span style="color:var(--color-text-tertiary);font-size:0.85rem;">None of the required skills match yet</span>';
 
   // Need skills
-  document.getElementById('jdaNeedCount').textContent = needSkills.length;
-  document.getElementById('jdaNeedSkills').innerHTML = needSkills.length > 0
+  document.getElementById('jdaNeedCount').textContent  = needSkills.length;
+  document.getElementById('jdaNeedSkills').innerHTML   = needSkills.length > 0
     ? needSkills.map(s => `<span class="jda-chip need">✗ ${s}</span>`).join('')
     : '<span style="color:var(--color-success);font-size:0.85rem;">You have all detected skills! 🎉</span>';
 
@@ -1659,9 +1811,10 @@ function analyzeJD() {
   resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ---- addJDAToTracker — unchanged ----
 function addJDAToTracker() {
   const company = document.getElementById('jdaCompanyName').value.trim() || 'Unknown Company';
-  const role = document.getElementById('jdaRoleName').value.trim() || 'Unknown Role';
+  const role    = document.getElementById('jdaRoleName').value.trim()    || 'Unknown Role';
 
   if (jdaExtractedSkills.length === 0) {
     showNotification('No skills detected to add', 'error');
@@ -1669,17 +1822,17 @@ function addJDAToTracker() {
   }
 
   const newCompany = {
-    id: Date.now(),
-    name: company,
-    role: role,
+    id:             Date.now(),
+    name:           company,
+    role:           role,
     requiredSkills: jdaExtractedSkills,
-    location: 'Not specified',
-    type: role.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
-    isFavorite: false,
-    notes: 'Added from JD Analyzer.',
-    description: document.getElementById('jdaText').value.trim(),
-    addedDate: new Date().toISOString(),
-    deadline: null
+    location:       'Not specified',
+    type:           role.toLowerCase().includes('intern') ? 'Internship' : 'Full-time',
+    isFavorite:     false,
+    notes:          'Added from JD Analyzer.',
+    description:    document.getElementById('jdaText').value.trim(),
+    addedDate:      new Date().toISOString(),
+    deadline:       null
   };
 
   appState.companies.push(newCompany);
@@ -1688,13 +1841,17 @@ function addJDAToTracker() {
   switchView('companies');
 }
 
+// ---- clearJDA — unchanged ----
 function clearJDA() {
-  document.getElementById('jdaText').value = '';
+  document.getElementById('jdaText').value        = '';
   document.getElementById('jdaCompanyName').value = '';
-  document.getElementById('jdaRoleName').value = '';
+  document.getElementById('jdaRoleName').value    = '';
   document.getElementById('jdaResults').classList.add('hidden');
   jdaExtractedSkills = [];
+  const sourceBadge = document.getElementById('jdaSourceBadge');
+  if (sourceBadge) sourceBadge.style.display = 'none';
 }
+
 
 // ===================================
 // Resume Builder
