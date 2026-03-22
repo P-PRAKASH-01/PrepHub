@@ -1,0 +1,16 @@
+{
+  "name": "prephub",
+  "version": "1.1.0",
+  "description": "PrepHub - Student Career Preparation Portal",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0",
+    "puppeteer": "^24.39.1"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
