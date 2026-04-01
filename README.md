@@ -11,7 +11,7 @@ PrepHub is a free, **offline-first** career preparation platform built for stude
 | Feature | Description |
 |---|---|
 | 🏢 **Company Tracker** | Add and manage companies with role, location, type, deadline, and notes |
-| 🔍 **JD Analyzer** | Paste any job description to extract required skills and see your match score |
+| 🔍 **JD Analyzer** | Paste any job description to extract required skills and see your match score (AI-powered with fallback) |
 | 🎯 **Skill Gap Analysis** | See which skills you have vs. which you still need to learn |
 | 📈 **Progress Tracking** | Visual readiness bar per company, sorted by lowest progress first |
 | 💼 **Live Job Search** | Browse real jobs via the Adzuna API proxy |
@@ -48,10 +48,11 @@ Create a `.env` file in the root directory:
 ```env
 ADZUNA_APP_ID=your_app_id_here
 ADZUNA_APP_KEY=your_app_key_here
+HF_TOKEN=your_hugging_face_token_here
 PORT=3001
 ```
 
-> **Note:** The JD Analyzer, Skill Gap Analysis, Progress Tracker, and Resume Builder all work **without any API key**. Only the Live Job Search requires Adzuna credentials.
+> **Note:** The JD Analyzer works with AI-powered skill extraction (requires Hugging Face token) or falls back to rule-based extraction. Only the Live Job Search requires Adzuna credentials.
 
 ### 4. Start the server
 
@@ -73,7 +74,7 @@ Add Company → Paste JD → Analyze Skills → Track Progress → Build Resume
 
 1. **Add Company** — Track a company you're targeting (role, location, deadline)
 2. **Browse Jobs** — Search live job listings via the Adzuna API
-3. **JD Analyzer** — Paste the job description to extract required skills with High/Med/Low priority tags
+3. **JD Analyzer** — Paste the job description to extract required skills with AI-powered analysis (High/Med/Low priority tags)
 4. **Skill Gap View** — See all skills you're missing across every tracked company
 5. **Progress View** — Monitor per-company learning readiness (%)
 6. **Resume Builder** — Fill in your profile and download a clean PDF resume
@@ -86,6 +87,7 @@ Add Company → Paste JD → Analyze Skills → Track Progress → Build Resume
 |---|---|
 | Frontend | HTML5, CSS3, Vanilla JavaScript |
 | Backend | Node.js + Express (API proxy) |
+| AI/ML | [Hugging Face](https://huggingface.co/) JobBERT for skill extraction |
 | Data Storage | Browser LocalStorage (offline) |
 | Job Search API | [Adzuna](https://api.adzuna.com/) |
 | Offline Support | Service Worker + PWA manifest |
@@ -115,7 +117,7 @@ prephub/
 - **No login required** — zero accounts, zero sign-ups
 - **All data is yours** — stored locally in your browser's LocalStorage
 - **Export anytime** — download a full `.json` backup from Settings
-- **API keys stay private** — Adzuna keys are stored server-side, never exposed to the browser
+- **API keys stay private** — Adzuna and Hugging Face keys are stored server-side, never exposed to the browser
 
 ---
 
@@ -131,8 +133,8 @@ Access the ⚙️ **Settings** panel (top-right) to:
 
 ## 🗺️ Roadmap
 
+- [x] AI-powered JD parsing (with Hugging Face JobBERT)
 - [ ] Resume ↔ JD keyword match score
-- [ ] AI-powered JD parsing (optional API key)
 - [ ] Interview question generator per role
 - [ ] Smart career roadmap suggestions
 
