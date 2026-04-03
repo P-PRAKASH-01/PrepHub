@@ -1,151 +1,141 @@
-# 🎯 PrepHub — Career Preparation Operating System
+# PrepHub - Job Preparation Platform
 
-> *From Job Description → Skill Gap → Progress Tracking → ATS Resume*
+A comprehensive job preparation platform designed to help candidates track job opportunities, analyze job descriptions, manage skills, and organize their job search journey.
 
-PrepHub is a free, **offline-first** career preparation platform built for students. It helps you track companies, identify skill gaps, monitor your learning progress, and build ATS-optimized resumes — all without requiring an account or internet connection.
+## Features
 
----
+- **Dashboard** - Overview of your job search progress and key metrics
+- **Job Board** - Browse and track job listings
+- **Company Tracker** - Monitor companies you're interested in
+- **JD Analyzer** - Analyze job descriptions to identify key requirements
+- **Skill Tracker** - Track and develop the skills needed for target roles
+- **Resources** - Curated resources for interview prep and learning
+- **Profile** - Manage your profile and job search preferences
 
-## ✨ Features
+## User Flow
 
-| Feature | Description |
-|---|---|
-| 🏢 **Company Tracker** | Add and manage companies with role, location, type, deadline, and notes |
-| 🔍 **JD Analyzer** | Paste any job description to extract required skills and see your match score (AI-powered with fallback) |
-| 🎯 **Skill Gap Analysis** | See which skills you have vs. which you still need to learn |
-| 📈 **Progress Tracking** | Visual readiness bar per company, sorted by lowest progress first |
-| 💼 **Live Job Search** | Browse real jobs via the Adzuna API proxy |
-| 📄 **Resume Builder** | Build a clean ATS-friendly resume with live preview and PDF export |
-| 📲 **PWA Support** | Install as an app on mobile/desktop; works fully offline |
-| 💾 **Data Export/Import** | Export your data as JSON and import it on any device |
+```
+Entry Point
+    ↓
+Login Page (Authentication)
+    ↓
+Dashboard (Main Hub)
+    ├→ Job Board (Browse & Track Jobs)
+    ├→ Company Tracker (Track Companies)
+    ├→ JD Analyzer (Analyze Job Descriptions)
+    ├→ Skill Tracker (Manage Skills)
+    ├→ Resources (Learning Materials)
+    └→ Profile (Settings & Preferences)
+```
 
----
+**Authentication Flow:**
+1. User lands on the app
+2. If not authenticated, redirected to Login Page
+3. After successful login, user is taken to Dashboard
+4. User can navigate between different tools and features
+5. ProtectedRoute component ensures only authenticated users access protected pages
 
-## 🚀 Getting Started
+## Tech Stack
+
+- **Frontend:** React 18 + Vite
+- **Backend:** Firebase (Authentication & Database)
+- **Styling:** CSS
+- **Build Tool:** Vite
+- **Code Quality:** ESLint
+
+## Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or later recommended)
-- An [Adzuna API account](https://developer.adzuna.com/) for the Live Job Search feature (free)
+- Node.js (v14 or higher)
+- npm or yarn
 
-### 1. Clone the repository
+### Installation
 
+1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/prephub.git
+git clone <repository-url>
 cd prephub
 ```
 
-### 2. Install dependencies
-
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-### 3. Configure your API keys
+### Development
 
-Create a `.env` file in the root directory:
-
-```env
-ADZUNA_APP_ID=your_app_id_here
-ADZUNA_APP_KEY=your_app_key_here
-HF_TOKEN=your_hugging_face_token_here
-PORT=3001
-```
-
-> **Note:** The JD Analyzer works with AI-powered skill extraction (requires Hugging Face token) or falls back to rule-based extraction. Only the Live Job Search requires Adzuna credentials.
-
-### 4. Start the server
-
+Start the development server:
 ```bash
-npm start
+npm run dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser.
+The application will be available at `http://localhost:5173`
 
----
+### Build
 
-## 📖 How It Works
-
-### Workflow
-
-```
-Add Company → Paste JD → Analyze Skills → Track Progress → Build Resume
+Build for production:
+```bash
+npm run build
 ```
 
-1. **Add Company** — Track a company you're targeting (role, location, deadline)
-2. **Browse Jobs** — Search live job listings via the Adzuna API
-3. **JD Analyzer** — Paste the job description to extract required skills with AI-powered analysis (High/Med/Low priority tags)
-4. **Skill Gap View** — See all skills you're missing across every tracked company
-5. **Progress View** — Monitor per-company learning readiness (%)
-6. **Resume Builder** — Fill in your profile and download a clean PDF resume
-
----
-
-## 🧰 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | HTML5, CSS3, Vanilla JavaScript |
-| Backend | Node.js + Express (API proxy) |
-| AI/ML | [Hugging Face](https://huggingface.co/) JobBERT for skill extraction |
-| Data Storage | Browser LocalStorage (offline) |
-| Job Search API | [Adzuna](https://api.adzuna.com/) |
-| Offline Support | Service Worker + PWA manifest |
-| PDF Export | Browser's native `window.print()` |
-
----
-
-## 📂 Project Structure
-
-```
-prephub/
-├── index.html          # Main SPA shell with all views
-├── script.js           # All application logic (~2100 lines)
-├── styles.css          # Full styling with CSS variables
-├── server.js           # Express server + Adzuna proxy
-├── service-worker.js   # PWA offline caching
-├── manifest.json       # PWA app manifest
-├── .env                # API keys (not committed)
-├── icons/              # App icons (192px, 512px)
-└── api/                # Optional serverless API routes
+Preview the production build:
+```bash
+npm run preview
 ```
 
----
+## Project Structure
 
-## 🔐 Privacy & Data
+```
+src/
+├── components/       # Reusable React components
+├── context/         # React context for state management
+├── pages/           # Page components
+├── utils/           # Utility functions and API integrations
+├── assets/          # Images and static files
+├── App.jsx          # Main App component
+├── main.jsx         # Application entry point
+├── firebase.js      # Firebase configuration
+└── index.css        # Global styles
+```
 
-- **No login required** — zero accounts, zero sign-ups
-- **All data is yours** — stored locally in your browser's LocalStorage
-- **Export anytime** — download a full `.json` backup from Settings
-- **API keys stay private** — Adzuna and Hugging Face keys are stored server-side, never exposed to the browser
+## ESLint Configuration
 
----
+The project uses ESLint for code quality. Run linting with:
+```bash
+npm run lint
+```
 
-## ⚙️ Settings & Data Management
+## Color Palette
 
-Access the ⚙️ **Settings** panel (top-right) to:
-- Export data as a JSON backup
-- Import previously exported data
-- Clear all local data
-- Install the app as a PWA
+The application uses a carefully designed color scheme:
 
----
+**Primary Colors:**
+- **Indigo (#4F46E5)** - Logo, primary brand color
+- **Blue (#2563EB)** - Navigation links, interactive elements
+- **Violet (#7C3AED)** - Gradients and accents
 
-## 🗺️ Roadmap
+**Status Colors:**
+- **Green (#10B981)** - Success, ready status
+- **Amber (#F59E0B)** - Warning, in-progress status
+- **Red (#EF4444)** - Error, needs work status
+- **Gray (#6B7280)** - Neutral, not started status
 
-- [x] AI-powered JD parsing (with Hugging Face JobBERT)
-- [ ] Resume ↔ JD keyword match score
-- [ ] Interview question generator per role
-- [ ] Smart career roadmap suggestions
+**Neutral Colors:**
+- **White (#FFFFFF)** - Primary backgrounds
+- **Dark Navy (#0F172A)** - Dark backgrounds
+- **Slate (#1E293B)** - Secondary dark backgrounds
+- **Dark Gray (#555555)** - Text content
 
----
+**Supporting Colors:**
+- **Light Indigo (#E0E7FF)** - Light backgrounds
+- **Light Blue (#F0F9FF, #DBEAFE)** - Borders and accents
+- **Light Red (#FEE2E2)** - Error backgrounds
 
-## 👨‍💻 Author
+## Contributing
 
-**Prakash P** — *Building tools that make student preparation structured, measurable, and strategic.*
+Contributions are welcome! Please create a feature branch and submit a pull request.
 
----
+## License
 
-## ⭐ Support
-
-If PrepHub helps you land your dream internship or job, give this repo a ⭐ star and share it with others!
+This project is licensed under the MIT License.

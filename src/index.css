@@ -1,0 +1,67 @@
+:root {
+  /* Primary Colors */
+  --primary: #6D28D9;
+  --primary-hover: #5B21B6;
+  --primary-light: #EDE9FE;
+  --primary-mid: #8B5CF6;
+  --primary-text: #4C1D95;
+  --primary-surface: #F5F3FF;
+
+  /* Status Colors */
+  --success: #059669;
+  --success-light: #D1FAE5;
+  --success-text: #065F46;
+
+  --warning: #D97706;
+  --warning-light: #FEF3C7;
+  --warning-text: #92400E;
+
+  --danger: #DC2626;
+  --danger-light: #FEE2E2;
+  --danger-text: #7F1D1D;
+
+  --neutral: #6B7280;
+  --neutral-light: #F3F4F6;
+  --neutral-text: #374151;
+
+  /* Backgrounds */
+  --bg-page: #F8F7FF;
+  --bg-surface: #FFFFFF;
+  --bg-tinted: #F1F0FE;
+  --border: #E5E7EB;
+
+  /* Text Colors */
+  --text: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+}
+
+[data-theme="dark"] {
+  --bg-page: #0F0A1E;
+  --bg-surface: #1A1033;
+  --bg-tinted: #241A40;
+  --border: #2D2250;
+
+  --text: #F5F3FF;
+  --text-secondary: #C4B5FD;
+  --text-muted: #7C6FA0;
+
+  --primary: #8B5CF6;
+  --primary-hover: #7C3AED;
+  --primary-light: #2D2250;
+  --primary-text: #C4B5FD;
+  --primary-surface: #1A1033;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
