@@ -1,0 +1,24 @@
+{
+  "name": "PrepHub",
+  "short_name": "PrepHub",
+  "description": "Your job preparation platform",
+  "theme_color": "#6D28D9",
+  "background_color": "#F8F7FF",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
