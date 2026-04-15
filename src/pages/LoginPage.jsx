@@ -1,27 +1,20 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-  const {
-    user,
-    loginWithGoogle,
-    loginWithEmail,
-    registerWithEmail,
-    resetPassword,
-  } = useAuth();
+  const { user, loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword } = useAuth();
   const navigate = useNavigate();
-
+  const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
-  const [isRegisterMode, setIsRegisterMode] = useState(false);
 
   useEffect(() => {
     if (user) navigate("/dashboard");
-  }, [user]);
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -71,108 +64,85 @@ export default function LoginPage() {
     <div
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%)",
+        background: "var(--bg-page)",
+        backgroundImage: `
+          linear-gradient(hsla(var(--primary) / 0.1) 1px, transparent 1px),
+          linear-gradient(90deg, hsla(var(--primary) / 0.1) 1px, transparent 1px)
+        `,
+        backgroundSize: "60px 60px",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         padding: "24px",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
+      <div style={bgGlow}></div>
       <div
+        className="glass-card animate-fade-in"
         style={{
-          background: "var(--bg-surface)",
-          borderRadius: 24,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.25)",
           padding: "40px 36px",
           minWidth: 360,
           maxWidth: 420,
           width: "100%",
           textAlign: "center",
-          border: "1px solid var(--border)",
+          border: "1px solid var(--border-glass)",
+          zIndex: 1,
         }}
       >
-        <h1 style={{ color: "var(--text)", fontWeight: 800, fontSize: 34, marginBottom: 10 }}>
-          {isRegisterMode ? "Register" : "Login"}
+        <h1 className="glow-text" style={{ fontWeight: 800, fontSize: 34, marginBottom: 10 }}>
+          {isRegisterMode ? "Sign Up" : "Sign In"}
         </h1>
-        <p style={{ color: "var(--text-secondary)", fontSize: 16, marginBottom: 24 }}>
+        <p style={{ color: "var(--text-dim)", fontSize: 16, marginBottom: 24 }}>
           {isRegisterMode
-            ? "Create your PrepHub account"
-            : "Welcome back, please sign in"}
+            ? "Start your career acceleration journey."
+            : "Continue where you left off."}
         </p>
 
-        {error && <p style={{ color: "var(--danger)", marginBottom: 12 }}>{error}</p>}
-        {status && <p style={{ color: "var(--success)", marginBottom: 12 }}>{status}</p>}
+        {error && <p style={{ color: "var(--danger)", marginBottom: 12, fontSize: "14px" }}>{error}</p>}
+        {status && <p style={{ color: "var(--success)", marginBottom: 12, fontSize: "14px" }}>{status}</p>}
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              marginBottom: 14,
-              borderRadius: 10,
-              border: "1px solid var(--border)",
-              fontSize: 16,
-              backgroundColor: "var(--bg-surface)",
-              color: "var(--text)",
-            }}
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            style={{
-              width: "100%",
-              padding: "12px 14px",
-              marginBottom: 16,
-              borderRadius: 10,
-              border: "1px solid var(--border)",
-              fontSize: 16,
-              backgroundColor: "var(--bg-surface)",
-              color: "var(--text)",
-            }}
-          />
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={inputContainer}>
+            <label style={labelStyle}>Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@university.edu"
+              style={inputStyle}
+            />
+          </div>
+          <div style={inputContainer}>
+            <label style={labelStyle}>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              style={inputStyle}
+            />
+          </div>
+          
           <button
             type="submit"
             disabled={busy}
-            style={{
-              width: "100%",
-              padding: "14px 0",
-              fontSize: 17,
-              fontWeight: 700,
-              background: "linear-gradient(90deg, var(--primary) 0%, var(--primary-mid) 100%)",
-              color: "#fff",
-              border: "none",
-              borderRadius: 10,
-              cursor: busy ? "not-allowed" : "pointer",
-              marginBottom: 14,
-            }}
+            style={primaryBtn(busy)}
           >
             {busy
-              ? "Working..."
+              ? "Connecting..."
               : isRegisterMode
-              ? "Create account"
-              : "Log in"}
+              ? "Create Account"
+              : "Sign In"}
           </button>
         </form>
 
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "20px" }}>
           <button
             onClick={handleReset}
             type="button"
-            style={{
-              border: "none",
-              background: "none",
-              color: "var(--primary)",
-              textDecoration: "underline",
-              cursor: "pointer",
-              padding: 0,
-              fontWeight: 600,
-            }}
+            style={linkBtn}
           >
             Forgot password?
           </button>
@@ -183,42 +153,112 @@ export default function LoginPage() {
               setStatus("");
             }}
             type="button"
-            style={{
-              border: "none",
-              background: "none",
-              color: "var(--primary)",
-              textDecoration: "underline",
-              cursor: "pointer",
-              padding: 0,
-              fontWeight: 600,
-            }}
+            style={linkBtn}
           >
-            {isRegisterMode ? "Already have an account? Login" : "Create an account"}
+            {isRegisterMode ? "Back to Sign In" : "New Scholar? Join PrepHub"}
           </button>
         </div>
 
-        <div style={{ marginTop: 6, marginBottom: 4, color: "var(--text-muted)" }}>
-          or
+        <div style={{ margin: "24px 0", display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={hr}></div>
+          <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: "700" }}>OR</span>
+          <div style={hr}></div>
         </div>
 
         <button
           onClick={loginWithGoogle}
           type="button"
-          style={{
-            width: "100%",
-            padding: "12px 0",
-            fontSize: 16,
-            fontWeight: 700,
-            background: "var(--bg-surface)",
-            color: "var(--text)",
-            border: "1px solid var(--border)",
-            borderRadius: 10,
-            cursor: "pointer",
-          }}
+          style={googleBtn}
         >
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style={{width: 18}} />
           Sign in with Google
         </button>
       </div>
     </div>
   );
 }
+
+// Internal Styles
+const bgGlow = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "600px",
+  height: "600px",
+  background: "radial-gradient(circle, hsla(var(--primary) / 0.15) 0%, transparent 70%)",
+  filter: "blur(60px)",
+  zIndex: 0,
+  pointerEvents: "none",
+};
+
+const inputContainer = {
+  textAlign: "left",
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
+};
+
+
+const labelStyle = {
+  fontSize: "11px",
+  fontWeight: "800",
+  textTransform: "uppercase",
+  color: "var(--text-muted)",
+  letterSpacing: "0.05em",
+};
+
+const inputStyle = {
+  width: "100%",
+  padding: "12px 16px",
+  borderRadius: "12px",
+  border: "1px solid var(--border-glass)",
+  fontSize: "15px",
+  backgroundColor: "hsla(var(--bg-page) / 0.5)",
+  color: "white",
+  outline: "none",
+  transition: "var(--transition-smooth)",
+};
+
+const primaryBtn = (busy) => ({
+  width: "100%",
+  padding: "16px",
+  fontSize: "15px",
+  fontWeight: "800",
+  background: "hsl(var(--primary))",
+  color: "#fff",
+  border: "none",
+  borderRadius: "12px",
+  cursor: busy ? "not-allowed" : "pointer",
+  transition: "var(--transition-spring)",
+  boxShadow: busy ? "none" : "0 8px 16px -4px hsla(var(--primary-glow))",
+});
+
+const linkBtn = {
+  border: "none",
+  background: "none",
+  color: "var(--primary)",
+  fontSize: "13px",
+  cursor: "pointer",
+  padding: 0,
+  fontWeight: "700",
+};
+
+const hr = { flex: 1, height: "1px", background: "var(--border-glass)" };
+
+const googleBtn = {
+  width: "100%",
+  padding: "12px",
+  fontSize: "14px",
+  fontWeight: "700",
+  background: "hsla(var(--text-main) / 0.05)",
+  color: "#fff",
+  border: "1px solid var(--border-glass)",
+  borderRadius: "12px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: "12px",
+  transition: "var(--transition-smooth)",
+};

@@ -19,7 +19,7 @@ export default function JobBoard() {
       const results = await searchJobs({ role, location });
       setJobs(results);
     } catch {
-      setError("Failed to fetch jobs. Please try again.");
+      setError("Grid link failed. System re-routing...");
     } finally {
       setLoading(false);
     }
@@ -28,7 +28,8 @@ export default function JobBoard() {
   const handleSaveJob = (job) => {
     const saved = getData("savedJobs") || [];
     const alreadySaved = saved.find((j) => j.id === job.id);
-    if (alreadySaved) return alert("Job already saved!");
+    if (alreadySaved) return;
+
     const updatedSaved = [
       ...saved,
       {
@@ -41,108 +42,81 @@ export default function JobBoard() {
       },
     ];
     saveData("savedJobs", updatedSaved);
-    alert(`"${job.title}" saved to Company Tracker!`);
   };
 
   return (
-    <div style={{ padding: "32px", maxWidth: "900px", margin: "0 auto" }}>
-      <h2>Job Board</h2>
-      <p style={{ color: "var(--text-secondary)", marginBottom: "24px" }}>
-        Search jobs by role and location, then analyze the JD.
-      </p>
+    <div className="animate-fade-in container-full" style={boardLayout}>
+      <header style={headerStyle}>
+        <h1 className="glow-text" style={titleStyle}>Job Board</h1>
+        <p style={subtitleStyle}>Explore global opportunities and accelerate your career path.</p>
+      </header>
 
-      {/* Filter Section */}
-      <div
-        style={{
-          display: "flex",
-          gap: "12px",
-          marginBottom: "24px",
-          flexWrap: "wrap",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Role  (e.g. Frontend Developer)"
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          style={inputStyle}
-        />
-        <input
-          type="text"
-          placeholder="Location  (e.g. Bangalore)"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-          style={inputStyle}
-        />
-        <button onClick={handleSearch} disabled={loading} style={buttonStyle}>
-          {loading ? "Searching..." : "Search Jobs"}
-        </button>
-      </div>
+      {/* Search Bar */}
+      <section className="glass-card" style={searchNexus}>
+        <div className="search-nexus-responsive">
+          <div style={inputItem}>
+             <label style={labelStyle}>Target Role</label>
+             <input
+               style={inputStyle}
+               placeholder="e.g. Software Engineer"
+               value={role}
+               onChange={(e) => setRole(e.target.value)}
+               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+             />
+          </div>
+          <div className="divider" style={divider}></div>
+          <div style={inputItem}>
+             <label style={labelStyle}>Location</label>
+             <input
+               style={inputStyle}
+               placeholder="e.g. Remote / New York"
+               value={location}
+               onChange={(e) => setLocation(e.target.value)}
+               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+             />
+          </div>
+          <button onClick={handleSearch} style={searchBtn}>
+            {loading ? "Searching..." : "Find Jobs"}
+          </button>
+        </div>
+      </section>
 
-      {/* Error */}
-      {error && <p style={{ color: "var(--danger)", marginBottom: "16px" }}>{error}</p>}
+      {/* Results Engine */}
+      <div style={resultsGrid}>
+        {error && <div style={errorMsg}>{error}</div>}
+        
+        {!searched && !loading && (
+          <div style={emptyNexus}>Enter search parameters to initiate data retrieval.</div>
+        )}
 
-      {/* No results */}
-      {searched && !loading && jobs.length === 0 && !error && (
-        <p style={{ color: "var(--text-secondary)" }}>
-          No jobs found. Try a different role or location.
-        </p>
-      )}
+        {searched && !loading && jobs.length === 0 && !error && (
+          <div style={emptyNexus}>No matches found in the current sector. Try broadening scope.</div>
+        )}
 
-      {/* Job Cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {jobs.map((job) => (
-          <div key={job.id} style={cardStyle}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-              }}
-            >
-              <div>
-                <h3 style={{ margin: "0 0 4px" }}>{job.title}</h3>
-                <p style={{ margin: "0", color: "var(--text)", fontWeight: "500" }}>
-                  {job.company.display_name}
-                </p>
-                <p style={{ margin: "4px 0", color: "var(--text-muted)", fontSize: "14px" }}>
-                  {job.location.display_name}
-                </p>
-              </div>
-              <a
-                href={job.redirect_url}
-                target="_blank"
-                rel="noreferrer"
-                style={linkStyle}
-              >
-                View Job
-              </a>
+          <div key={job.id} className="glass-card animate-fade-in" style={jobCard}>
+            <div style={cardHeader}>
+               <div style={companyInfo}>
+                  <h3 style={jobTitle}>{job.title}</h3>
+                  <p style={companyName}>{job.company.display_name}</p>
+               </div>
+               <span style={locBadge}>{job.location.display_name}</span>
             </div>
 
-            <p
-              style={{
-                margin: "12px 0",
-                fontSize: "14px",
-                color: "#444",
-                lineHeight: "1.6",
-              }}
-            >
-              {job.description.slice(0, 200)}...
-            </p>
+            <p style={jobDesc}>{job.description.slice(0, 180)}...</p>
 
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-              <button onClick={() => handleSaveJob(job)} style={secondaryBtn}>
+            <div style={tagCloud}>
+              {["Full-time", "Remote Ready", "Level: Entry"].map(tag => (
+                <span key={tag} style={tagStyle}>{tag}</span>
+              ))}
+            </div>
+
+            <div style={cardActions}>
+              <button onClick={() => handleSaveJob(job)} style={trackerBtn}>
                 Add to Tracker
               </button>
-              <a
-                href={job.redirect_url}
-                target="_blank"
-                rel="noreferrer"
-                style={applyBtn}
-              >
-                Apply
+              <a href={job.redirect_url} target="_blank" rel="noreferrer" style={applyBtn}>
+                Initiate Application
               </a>
             </div>
           </div>
@@ -152,63 +126,130 @@ export default function JobBoard() {
   );
 }
 
+// Styles
+const boardLayout = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "32px",
+};
+
+const headerStyle = { textAlign: "center", marginBottom: "8px" };
+const titleStyle = { fontSize: "36px" };
+const subtitleStyle = { color: "hsl(var(--text-dim))", fontSize: "16px" };
+
+const searchNexus = {
+  padding: "8px",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const inputItem = { flex: 1, display: "flex", flexDirection: "column", gap: "2px" };
+
+const labelStyle = {
+  fontSize: "10px",
+  fontWeight: "800",
+  color: "hsl(var(--primary))",
+  textTransform: "uppercase",
+  letterSpacing: "0.05em",
+};
+
 const inputStyle = {
-  padding: "10px 14px",
-  fontSize: "15px",
-  border: "1px solid #ddd",
-  borderRadius: "8px",
-  flex: 1,
-  minWidth: "200px",
-  outline: "none",
-};
-
-const buttonStyle = {
-  padding: "10px 24px",
-  fontSize: "15px",
-  backgroundColor: "#4F46E5",
-  color: "white",
+  background: "none",
   border: "none",
-  borderRadius: "8px",
+  color: "white",
+  fontSize: "14px",
+  outline: "none",
+  padding: "4px 0",
+};
+
+const divider = { width: "1px", height: "30px", background: "hsla(var(--border-glass))", margin: "0 20px" };
+
+const searchBtn = {
+  padding: "16px 32px",
+  borderRadius: "100px",
+  background: "hsl(var(--primary))",
+  color: "white",
+  fontWeight: "800",
+  border: "none",
   cursor: "pointer",
+  fontSize: "14px",
+  transition: "var(--transition-spring)",
 };
 
-const secondaryBtn = {
-  padding: "8px 16px",
+const resultsGrid = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "20px",
+  marginBottom: "60px",
+};
+
+const jobCard = {
+  padding: "32px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "24px",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const cardHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-start",
+};
+
+const companyInfo = { display: "flex", flexDirection: "column", gap: "4px" };
+const jobTitle = { fontSize: "22px", fontWeight: "800" };
+const companyName = { color: "hsl(var(--accent))", fontWeight: "700", fontSize: "14px" };
+
+const locBadge = {
+  fontSize: "11px",
+  background: "hsla(var(--text-main) / 0.05)",
+  color: "hsl(var(--text-muted))",
+  padding: "6px 14px",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const jobDesc = {
+  fontSize: "15px",
+  lineHeight: "1.6",
+  color: "hsl(var(--text-dim))",
+};
+
+const tagCloud = { display: "flex", gap: "8px" };
+const tagStyle = {
+  fontSize: "11px",
+  color: "hsl(var(--text-muted))",
+  background: "hsla(var(--bg-glass))",
+  padding: "4px 10px",
+  borderRadius: "4px",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const cardActions = { display: "flex", gap: "12px", marginTop: "8px" };
+
+const trackerBtn = {
+  padding: "12px 24px",
+  borderRadius: "100px",
+  background: "hsla(var(--text-main) / 0.05)",
+  color: "white",
+  border: "1px solid hsla(var(--border-glass))",
+  fontWeight: "700",
   fontSize: "13px",
-  backgroundColor: "var(--bg-tinted)",
-  color: "var(--text)",
-  border: "1px solid #ddd",
-  borderRadius: "6px",
   cursor: "pointer",
-};
-
-const cardStyle = {
-  padding: "20px",
-  border: "1px solid #e5e7eb",
-  borderRadius: "12px",
-  backgroundColor: "#fff",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-};
-
-const linkStyle = {
-  padding: "8px 16px",
-  backgroundColor: "var(--primary-light)",
-  color: "var(--primary)",
-  borderRadius: "6px",
-  textDecoration: "none",
-  fontSize: "13px",
-  fontWeight: "500",
-  whiteSpace: "nowrap",
 };
 
 const applyBtn = {
-  padding: "8px 16px",
-  fontSize: "13px",
-  backgroundColor: "#4F46E5",
+  padding: "12px 24px",
+  borderRadius: "100px",
+  background: "hsl(var(--primary))",
   color: "white",
+  fontWeight: "800",
   border: "none",
-  borderRadius: "6px",
-  cursor: "pointer",
   textDecoration: "none",
-  fontWeight: "500",
+  fontSize: "13px",
+  textAlign: "center",
 };
+
+const errorMsg = { color: "hsl(var(--danger))", textAlign: "center", padding: "20px" };
+const emptyNexus = { color: "hsl(var(--text-muted))", textAlign: "center", padding: "80px" };

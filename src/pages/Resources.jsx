@@ -1,419 +1,244 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getData } from "../utils/storage";
 import { getResourcesForSkill } from "../utils/resources";
 
 export default function Resources() {
-  const [skills, setSkills] = useState([]);
-  const [filter, setFilter] = useState("missing"); // missing, all, learned
-
-  useEffect(() => {
+  const [skills] = useState(() => {
     const storedSkills = getData("skillTracker") || [];
-    const normalizedSkills = storedSkills.map(skill =>
+    return storedSkills.map(skill =>
       typeof skill === 'string'
         ? { name: skill, learned: false }
         : skill
     );
-    setSkills(normalizedSkills);
-  }, []);
+  });
+  const [filter, setFilter] = useState("missing");
 
   const getFilteredSkills = () => {
     switch (filter) {
-      case "missing":
-        return skills.filter(skill => !skill.learned);
-      case "learned":
-        return skills.filter(skill => skill.learned);
-      case "all":
-      default:
-        return skills;
+      case "missing": return skills.filter(skill => !skill.learned);
+      case "learned": return skills.filter(skill => skill.learned);
+      default: return skills;
     }
   };
 
   const filteredSkills = getFilteredSkills();
-  const skillsWithResources = filteredSkills.filter(skill =>
-    getResourcesForSkill(skill.name).length > 0
-  );
-
-  const ResourceCard = ({ resource, skillName }) => (
-    <div style={resourceCardStyle}>
-      <div style={resourceHeaderStyle}>
-        <div style={resourceTypeBadgeStyle(resource.type)}>
-          {resource.type}
-        </div>
-        <span style={resourceProviderStyle}>{resource.provider}</span>
-      </div>
-
-      <h4 style={resourceTitleStyle}>{resource.title}</h4>
-
-      <a
-        href={resource.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={resourceLinkStyle}
-      >
-        View Resource →
-      </a>
-    </div>
-  );
-
-  const SkillSection = ({ skill }) => {
-    const resources = getResourcesForSkill(skill.name);
-
-    if (resources.length === 0) return null;
-
-    return (
-      <div style={skillSectionStyle}>
-        <div style={skillHeaderStyle}>
-          <h3 style={skillNameStyle}>{skill.name}</h3>
-          <span style={{
-            ...skillStatusStyle,
-            color: skill.learned ? "var(--success)" : "var(--danger)"
-          }}>
-            {skill.learned ? "✅ Learned" : "⏳ In Progress"}
-          </span>
-        </div>
-
-        <div style={resourcesGridStyle}>
-          {resources.map((resource, index) => (
-            <ResourceCard
-              key={index}
-              resource={resource}
-              skillName={skill.name}
-            />
-          ))}
-        </div>
-      </div>
-    );
-  };
+  const skillsWithResources = filteredSkills.filter(skill => getResourcesForSkill(skill.name).length > 0);
 
   return (
-    <div style={containerStyle}>
+    <div className="animate-fade-in container-full" style={resourcesLayout}>
       <header style={headerStyle}>
-        <h1 style={titleStyle}>Learning Resources</h1>
-        <p style={subtitleStyle}>
-          Curated learning materials for your skills. Focus on resources for skills you haven't learned yet.
-        </p>
+        <h1 className="glow-text" style={titleStyle}>Learning Resources</h1>
+        <p style={subtitleStyle}>Curated materials to help you master missing skills and reach your career goals.</p>
       </header>
 
-      {/* Filter Section */}
-      <div style={filterSectionStyle}>
-        <h2 style={sectionTitleStyle}>Filter Resources</h2>
-        <div style={filterButtonsStyle}>
-          <button
-            onClick={() => setFilter("missing")}
-            style={filter === "missing" ? activeFilterStyle : filterButtonStyle}
-          >
-            Missing Skills ({skills.filter(s => !s.learned && getResourcesForSkill(s.name).length > 0).length})
-          </button>
-          <button
-            onClick={() => setFilter("all")}
-            style={filter === "all" ? activeFilterStyle : filterButtonStyle}
-          >
-            All Skills ({skills.filter(s => getResourcesForSkill(s.name).length > 0).length})
-          </button>
-          <button
-            onClick={() => setFilter("learned")}
-            style={filter === "learned" ? activeFilterStyle : filterButtonStyle}
-          >
-            Learned Skills ({skills.filter(s => s.learned && getResourcesForSkill(s.name).length > 0).length})
-          </button>
-        </div>
+      {/* Filter Bar */}
+      <section style={controlBar}>
+         <div style={filterGroup}>
+           {["missing", "all", "learned"].map(f => (
+             <button 
+               key={f} 
+               onClick={() => setFilter(f)} 
+               style={filterBtn(filter === f)}
+             >
+               {f === "missing" ? "Missing Skills" : f.charAt(0).toUpperCase() + f.slice(1)}
+             </button>
+           ))}
+         </div>
+      </section>
+
+      {/* Content Area */}
+      <div style={contentArea}>
+        {skillsWithResources.length === 0 ? (
+          <div className="glass-card" style={emptyState}>
+             <div style={emptyIcon}>📚</div>
+             <h3 style={emptyTitle}>No resources found</h3>
+             <p style={emptyText}>Try adding more skills in the analyzer or check back later.</p>
+          </div>
+        ) : (
+          skillsWithResources.map(skill => (
+            <div key={skill.name} className="glass-card" style={skillSection}>
+              <div style={sectionHeader}>
+                <h3 style={sectionTitle}>{skill.name}</h3>
+                <div style={sectionLine}></div>
+              </div>
+              <div style={resourceGrid}>
+                {getResourcesForSkill(skill.name).map((res, i) => (
+                  <a href={res.url} target="_blank" rel="noreferrer" key={i} className="glass-card" style={resourceCard}>
+                    <div style={resTop}>
+                      <span style={typeBadge(res.type)}>{res.type}</span>
+                      <span style={provider}>{res.provider}</span>
+                    </div>
+                    <h4 style={resTitle}>{res.title}</h4>
+                    <div style={resLink}>Access Resource →</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
-      {/* Resources Content */}
-      {skillsWithResources.length === 0 ? (
-        <div style={emptyStateStyle}>
-          <div style={emptyIconStyle}>📚</div>
-          <h3 style={emptyTitleStyle}>
-            {skills.length === 0
-              ? "No skills in your tracker yet"
-              : filter === "missing"
-                ? "All your skills are learned! 🎉"
-                : "No resources available for your skills"
-            }
-          </h3>
-          <p style={emptyTextStyle}>
-            {skills.length === 0
-              ? "Add some skills to your tracker first, then come back here for learning resources."
-              : filter === "missing"
-                ? "Great job! All your tracked skills are marked as learned. Consider adding more skills to continue growing."
-                : "We don't have curated resources for your skills yet. Check back later or visit our analyzer to add more skills."
-            }
-          </p>
+      {/* Info Footnote */}
+      <section style={infoGrid}>
+        <div className="glass-card" style={infoBlock}>
+          <span style={infoIcon}>🎯</span>
+          <h5 style={infoTitle}>Curated Quality</h5>
+          <p style={infoText}>Every module is vetted for technical accuracy and depth.</p>
         </div>
-      ) : (
-        <div style={resourcesContainerStyle}>
-          {skillsWithResources.map(skill => (
-            <SkillSection key={skill.name} skill={skill} />
-          ))}
+        <div className="glass-card" style={infoBlock}>
+          <span style={infoIcon}>⚡</span>
+          <h5 style={infoTitle}>Accelerated Path</h5>
+          <p style={infoText}>Focused strictly on high-impact industry requirements.</p>
         </div>
-      )}
-
-      {/* Info Section */}
-      <div style={infoSectionStyle}>
-        <h2 style={infoTitleStyle}>About These Resources</h2>
-        <div style={infoGridStyle}>
-          <div style={infoCardStyle}>
-            <div style={infoIconStyle}>🎯</div>
-            <h4 style={infoCardTitleStyle}>Curated Selection</h4>
-            <p style={infoCardTextStyle}>
-              Each resource is hand-picked for quality and relevance to help you learn effectively.
-            </p>
-          </div>
-
-          <div style={infoCardStyle}>
-            <div style={infoIconStyle}>📊</div>
-            <h4 style={infoCardTitleStyle}>Multiple Formats</h4>
-            <p style={infoCardTextStyle}>
-              Mix of video tutorials, documentation, courses, and interactive learning materials.
-            </p>
-          </div>
-
-          <div style={infoCardStyle}>
-            <div style={infoIconStyle}>🚀</div>
-            <h4 style={infoCardTitleStyle}>Skill-Focused</h4>
-            <p style={infoCardTextStyle}>
-              Resources are organized by skill, making it easy to find exactly what you need to learn.
-            </p>
-          </div>
+        <div className="glass-card" style={infoBlock}>
+          <span style={infoIcon}>🌐</span>
+          <h5 style={infoTitle}>Free & Open</h5>
+          <p style={infoText}>Using the best available open knowledge repositories.</p>
         </div>
-      </div>
+      </section>
     </div>
   );
 }
 
 // Styles
-const containerStyle = {
-  maxWidth: "1200px",
-  margin: "0 auto",
-  padding: "32px",
-};
-
-const headerStyle = {
-  textAlign: "center",
-  marginBottom: "40px",
-};
-
-const titleStyle = {
-  fontSize: "2.5rem",
-  fontWeight: "800",
-  background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
-  marginBottom: "12px",
-};
-
-const subtitleStyle = {
-  color: "#64748b",
-  fontSize: "1.1rem",
-  maxWidth: "700px",
-  margin: "0 auto",
-};
-
-const filterSectionStyle = {
-  marginBottom: "40px",
-};
-
-const sectionTitleStyle = {
-  fontSize: "1.5rem",
-  fontWeight: "700",
-  color: "#1e293b",
-  marginBottom: "16px",
-};
-
-const filterButtonsStyle = {
-  display: "flex",
-  gap: "12px",
-  flexWrap: "wrap",
-};
-
-const filterButtonStyle = {
-  padding: "10px 20px",
-  backgroundColor: "rgba(255, 255, 255, 0.8)",
-  border: "1px solid #e2e8f0",
-  borderRadius: "12px",
-  fontSize: "0.95rem",
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-  fontWeight: "500",
-};
-
-const activeFilterStyle = {
-  ...filterButtonStyle,
-  background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
-  color: "white",
-  borderColor: "#4f46e5",
-};
-
-const resourcesContainerStyle = {
+const resourcesLayout = {
   display: "flex",
   flexDirection: "column",
   gap: "32px",
-  marginBottom: "60px",
 };
 
-const skillSectionStyle = {
-  background: "linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%)",
-  backdropFilter: "blur(15px)",
-  borderRadius: "20px",
-  padding: "24px",
-  border: "1px solid rgba(226, 232, 240, 0.5)",
-};
+const headerStyle = { textAlign: "center", marginBottom: "12px" };
+const titleStyle = { fontSize: "36px" };
+const subtitleStyle = { color: "hsl(var(--text-dim))", fontSize: "16px" };
 
-const skillHeaderStyle = {
+const controlBar = {
   display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginBottom: "20px",
-  paddingBottom: "16px",
-  borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
-};
-
-const skillNameStyle = {
-  fontSize: "1.4rem",
-  fontWeight: "700",
-  color: "#1e293b",
-  margin: 0,
-};
-
-const skillStatusStyle = {
-  fontSize: "0.9rem",
-  fontWeight: "600",
-};
-
-const resourcesGridStyle = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-  gap: "16px",
-};
-
-const resourceCardStyle = {
-  background: "rgba(255, 255, 255, 0.6)",
-  borderRadius: "12px",
-  padding: "16px",
-  border: "1px solid rgba(226, 232, 240, 0.3)",
-  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-};
-
-const resourceHeaderStyle = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
+  justifyContent: "center",
   marginBottom: "12px",
 };
 
-const resourceTypeBadgeStyle = (type) => {
-  const colors = {
-    Course: "var(--primary)",
-    Video: "var(--danger)",
-    Docs: "var(--success)"
-  };
-
-  return {
-    padding: "4px 8px",
-    backgroundColor: `${colors[type] || "#6b7280"}20`,
-    color: colors[type] || "#6b7280",
-    borderRadius: "12px",
-    fontSize: "0.75rem",
-    fontWeight: "600",
-    textTransform: "uppercase",
-  };
+const filterGroup = {
+  display: "flex",
+  gap: "8px",
+  padding: "4px",
+  background: "hsla(var(--bg-glass))",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--border-glass))",
 };
 
-const resourceProviderStyle = {
-  fontSize: "0.8rem",
-  color: "#6b7280",
-  fontWeight: "500",
-};
-
-const resourceTitleStyle = {
-  fontSize: "1rem",
-  fontWeight: "600",
-  color: "#1e293b",
-  margin: "0 0 12px 0",
-  lineHeight: "1.4",
-};
-
-const resourceLinkStyle = {
-  display: "inline-block",
-  color: "#4f46e5",
-  textDecoration: "none",
-  fontSize: "0.9rem",
-  fontWeight: "500",
-  transition: "color 0.2s ease",
-};
-
-const emptyStateStyle = {
-  textAlign: "center",
-  padding: "80px 20px",
-  background: "linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.4) 100%)",
-  backdropFilter: "blur(15px)",
-  borderRadius: "20px",
-  border: "1px solid rgba(226, 232, 240, 0.5)",
-  marginBottom: "60px",
-};
-
-const emptyIconStyle = {
-  fontSize: "4rem",
-  marginBottom: "16px",
-};
-
-const emptyTitleStyle = {
-  fontSize: "1.3rem",
-  fontWeight: "600",
-  color: "#374151",
-  marginBottom: "8px",
-};
-
-const emptyTextStyle = {
-  color: "#6b7280",
-  fontSize: "1rem",
-  maxWidth: "500px",
-  margin: "0 auto",
-  lineHeight: "1.5",
-};
-
-const infoSectionStyle = {
-  marginTop: "40px",
-};
-
-const infoTitleStyle = {
-  fontSize: "1.8rem",
+const filterBtn = (active) => ({
+  padding: "8px 20px",
+  borderRadius: "100px",
+  border: "none",
+  background: active ? "hsl(var(--primary))" : "transparent",
+  color: active ? "white" : "hsl(var(--text-dim))",
+  fontSize: "13px",
   fontWeight: "700",
-  color: "#1e293b",
+  cursor: "pointer",
+  transition: "var(--transition-smooth)",
+});
+
+const contentArea = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "48px",
+};
+
+const emptyState = {
+  padding: "80px",
   textAlign: "center",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "12px",
+};
+
+const emptyIcon = { fontSize: "48px" };
+const emptyTitle = { fontSize: "20px", fontWeight: "800" };
+const emptyText = { color: "hsl(var(--text-dim))", maxWidth: "400px" };
+
+const skillSection = {
+  padding: "32px",
+  background: "hsla(var(--bg-card) / 0.5)",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const sectionHeader = {
+  display: "flex",
+  alignItems: "center",
+  gap: "24px",
   marginBottom: "32px",
 };
 
-const infoGridStyle = {
+const sectionTitle = {
+  fontSize: "24px",
+  fontWeight: "800",
+  whiteSpace: "nowrap",
+};
+
+const sectionLine = {
+  height: "1px",
+  flex: 1,
+  background: "linear-gradient(90deg, hsla(var(--primary) / 0.3), transparent)",
+};
+
+const resourceGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+  gap: "20px",
+};
+
+const resourceCard = {
+  padding: "20px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  textDecoration: "none",
+  color: "inherit",
+  transition: "var(--transition-spring)",
+  ":hover": { transform: "translateY(-4px)" },
+};
+
+const resTop = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const typeBadge = (type) => {
+  const color = type === 'Video' ? 'var(--danger)' : type === 'Course' ? 'var(--accent)' : 'var(--success)';
+  return {
+    fontSize: "10px",
+    fontWeight: "800",
+    textTransform: "uppercase",
+    padding: "4px 8px",
+    borderRadius: "6px",
+    background: `hsla(${color} / 0.1)`,
+    color: `hsl(${color})`,
+    border: `1px solid hsla(${color} / 0.2)`,
+  };
+};
+
+const provider = { fontSize: "11px", color: "hsl(var(--text-muted))", fontWeight: "700" };
+const resTitle = { fontSize: "16px", fontWeight: "700", lineHeight: "1.4" };
+const resLink = { marginTop: "auto", fontSize: "12px", fontWeight: "700", color: "hsl(var(--primary))" };
+
+const infoGrid = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-  gap: "24px",
+  gap: "20px",
+  marginTop: "40px",
 };
 
-const infoCardStyle = {
-  background: "linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(124, 58, 237, 0.05) 100%)",
-  backdropFilter: "blur(15px)",
-  borderRadius: "16px",
+const infoBlock = {
   padding: "24px",
   textAlign: "center",
-  border: "1px solid rgba(79, 70, 229, 0.1)",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "8px",
 };
 
-const infoIconStyle = {
-  fontSize: "2.5rem",
-  marginBottom: "16px",
-};
-
-const infoCardTitleStyle = {
-  fontSize: "1.1rem",
-  fontWeight: "600",
-  color: "#1e293b",
-  marginBottom: "8px",
-};
-
-const infoCardTextStyle = {
-  color: "#64748b",
-  fontSize: "0.9rem",
-  lineHeight: "1.5",
-  margin: 0,
-};
+const infoIcon = { fontSize: "24px", marginBottom: "8px" };
+const infoTitle = { fontSize: "14px", fontWeight: "800", textTransform: "uppercase" };
+const infoText = { fontSize: "13px", color: "hsl(var(--text-dim))" };

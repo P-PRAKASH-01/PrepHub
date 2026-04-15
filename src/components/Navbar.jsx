@@ -1,163 +1,240 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/login");
-  };
+  const navLinks = [
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "Skills", path: "/skills" },
+    { name: "Companies", path: "/companies" },
+    { name: "Resources", path: "/resources" },
+  ];
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const isActive = (path) => location.pathname === path;
+
+  const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.displayName || "User")}&background=0D1117&color=fff`;
 
   return (
-    <nav style={{ ...navStyle, padding: isMobile ? "14px 16px" : "14px 32px" }}>
-      <span style={{ fontWeight: "600", fontSize: "18px", color: "var(--primary)" }}>
-        PrepHub
-      </span>
-
-      {/* Desktop Navigation */}
-      {!isMobile && (
-        <div style={desktopNavStyle}>
-          <Link to="/dashboard" style={linkStyle}>Dashboard</Link>
-          <Link to="/skills" style={linkStyle}>Skills</Link>
-          <Link to="/companies" style={linkStyle}>Companies</Link>
-          <Link to="/resources" style={linkStyle}>Resources</Link>
+    <div style={navWrapper(scrolled)}>
+      <nav className="glass-card" style={navItems}>
+        <div style={logoContainer} onClick={() => navigate("/dashboard")}>
+          <div style={logoIcon}>P</div>
+          <span style={logoText}>PrepHub</span>
         </div>
-      )}
 
-      {/* Mobile Menu Overlay */}
-      {isMenuOpen && isMobile && (
-        <div style={mobileMenuOverlay}>
-          <div style={mobileMenuContent}>
-            <Link to="/dashboard" style={mobileLinkStyle} onClick={toggleMenu}>Dashboard</Link>
-            <Link to="/skills" style={mobileLinkStyle} onClick={toggleMenu}>Skills</Link>
-            <Link to="/companies" style={mobileLinkStyle} onClick={toggleMenu}>Companies</Link>
-            <Link to="/resources" style={mobileLinkStyle} onClick={toggleMenu}>Resources</Link>
+        {/* Desktop Links */}
+        <div style={desktopLinks} className="desktop-only">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              style={linkStyle(isActive(link.path))}
+            >
+              {link.name}
+              {isActive(link.path) && <div style={activeUnderline}></div>}
+            </Link>
+          ))}
+        </div>
+
+        {/* Profile & Actions */}
+        <div style={actionSection}>
+          <div 
+            style={profileWrapper} 
+            onClick={() => navigate("/profile")}
+          >
+            <img
+              src={!imgError && user?.photoURL ? user.photoURL : fallbackAvatar}
+              alt="profile"
+              style={profileImage}
+              onError={() => setImgError(true)}
+            />
           </div>
-        </div>
-      )}
-
-      {/* Profile and Hamburger (Mobile) */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-        <img
-          src={user?.photoURL}
-          alt="profile"
-          width={40}
-          style={{ borderRadius: "50%", cursor: "pointer" }}
-          onClick={() => navigate("/profile")}
-        />
-        {isMobile && (
-          <button onClick={toggleMenu} style={hamburgerBtn}>
-            <span style={hamburgerLine}></span>
-            <span style={hamburgerLine}></span>
-            <span style={hamburgerLine}></span>
+          
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} style={hamburgerBtn} className="mobile-only">
+            <div style={hamburgerLine(isMenuOpen)}></div>
+            <div style={hamburgerLine(isMenuOpen)}></div>
           </button>
-        )}
+        </div>
+      </nav>
+
+      {/* Mobile Menu */}
+      <div style={mobileMenu(isMenuOpen)}>
+        <div style={mobileMenuContent}>
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              onClick={() => setIsMenuOpen(false)}
+              style={mobileLinkStyle(isActive(link.path))}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </div>
       </div>
-    </nav>
+    </div>
   );
 }
 
-const navStyle = {
+// Styles
+const navWrapper = (scrolled) => ({
+  position: "fixed",
+  top: scrolled ? "12px" : "24px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  width: "calc(100% - 48px)",
+  maxWidth: "var(--container-max)",
+  zIndex: 1000,
+  transition: "var(--transition-spring)",
+});
+
+const navItems = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "14px 32px",
-  borderBottom: "1px solid var(--border)",
-  background: "linear-gradient(90deg, var(--primary-light) 0%, var(--bg-tinted) 100%)",
-  position: "sticky",
-  top: 0,
-  zIndex: 100,
+  padding: "12px 24px",
+  borderRadius: "100px", // Pill shape
+  border: "1px solid hsla(var(--border-glass))",
 };
 
-const linkStyle = {
+const logoContainer = {
+  display: "flex",
+  alignItems: "center",
+  gap: "12px",
+  cursor: "pointer",
+};
+
+const logoIcon = {
+  width: "32px",
+  height: "32px",
+  background: "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)",
+  borderRadius: "8px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  color: "white",
+  fontWeight: "800",
+  fontSize: "18px",
+};
+
+const logoText = {
+  fontSize: "20px",
+  fontWeight: "800",
+  color: "hsl(var(--text-main))",
+  letterSpacing: "-0.03em",
+};
+
+const desktopLinks = {
+  display: "flex",
+  gap: "4px",
+  alignItems: "center",
+};
+
+const linkStyle = (active) => ({
   textDecoration: "none",
-  color: "var(--primary)",
-  fontSize: "15px",
+  color: active ? "hsl(var(--text-main))" : "hsl(var(--text-dim))",
+  fontSize: "14px",
   fontWeight: "600",
-  padding: "6px 12px",
-  borderRadius: "6px",
-  transition: "background 0.2s, color 0.2s",
+  padding: "8px 16px",
+  borderRadius: "50px",
+  transition: "var(--transition-smooth)",
+  position: "relative",
+  background: active ? "hsla(var(--primary) / 0.1)" : "transparent",
+});
+
+const activeUnderline = {
+  position: "absolute",
+  bottom: "4px",
+  left: "50%",
+  transform: "translateX(-50%)",
+  height: "2px",
+  background: "hsl(var(--accent))",
+  borderRadius: "2px",
+  boxShadow: "0 0 12px hsla(var(--accent-glow))",
+  animation: "navUnderline 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards",
 };
 
-const desktopNavStyle = {
+const actionSection = {
   display: "flex",
-  gap: "20px",
   alignItems: "center",
+  gap: "12px",
 };
 
-const mobileMenuStyle = {
-  display: "flex",
-  alignItems: "center",
+const profileWrapper = {
+  cursor: "pointer",
+  transition: "var(--transition-spring)",
+};
+
+const profileImage = {
+  width: "38px",
+  height: "38px",
+  borderRadius: "50%",
+  border: "2px solid hsla(var(--border-glass))",
+  objectFit: "cover",
+  background: "hsla(var(--text-main) / 0.1)",
 };
 
 const hamburgerBtn = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
   background: "none",
   border: "none",
   cursor: "pointer",
-  display: "flex",
-  flexDirection: "column",
-  gap: "4px",
   padding: "8px",
 };
 
-const hamburgerLine = {
-  width: "20px",
+const hamburgerLine = () => ({
+  width: "24px",
   height: "2px",
-  backgroundColor: "var(--text-secondary)",
-  transition: "all 0.3s ease",
-};
+  background: "hsl(var(--text-main))",
+  transition: "var(--transition-spring)",
+});
 
-const mobileMenuOverlay = {
+const mobileMenu = (isOpen) => ({
   position: "fixed",
-  top: "60px",
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(0,0,0,0.5)",
-  zIndex: 99,
-};
+  top: "84px",
+  left: "24px",
+  right: "24px",
+  background: "hsl(var(--bg-glass))",
+  backdropFilter: "blur(20px)",
+  borderRadius: "24px",
+  padding: "24px",
+  border: "1px solid hsla(var(--border-glass))",
+  transform: isOpen ? "translateY(0)" : "translateY(-20px)",
+  opacity: isOpen ? 1 : 0,
+  pointerEvents: isOpen ? "all" : "none",
+  transition: "var(--transition-spring)",
+  zIndex: 999,
+});
 
 const mobileMenuContent = {
-  backgroundColor: "var(--bg-surface)",
-  padding: "20px",
   display: "flex",
   flexDirection: "column",
-  gap: "16px",
+  gap: "12px",
 };
 
-const mobileLinkStyle = {
+const mobileLinkStyle = (active) => ({
   textDecoration: "none",
-  color: "var(--text-secondary)",
-  fontSize: "16px",
-  fontWeight: "500",
-  padding: "10px 0",
-  borderBottom: "1px solid var(--border)",
-};
+  color: active ? "hsl(var(--text-main))" : "hsl(var(--text-dim))",
+  fontSize: "18px",
+  fontWeight: "700",
+  padding: "16px",
+  borderRadius: "16px",
+  background: active ? "hsla(var(--primary) / 0.1)" : "transparent",
+});
 
-const logoutBtn = {
-  padding: "6px 14px",
-  fontSize: "13px",
-  backgroundColor: "var(--danger-light)",
-  color: "var(--danger)",
-  border: "none",
-  borderRadius: "6px",
-  cursor: "pointer",
-};
+

@@ -1,30 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { getData, saveData } from "../utils/storage";
 
 export default function SkillTracker() {
-  const [skills, setSkills] = useState([]);
-  const [newSkill, setNewSkill] = useState("");
-  const [filter, setFilter] = useState("all"); // all, learned, unlearned
-
-  useEffect(() => {
+  const [skills, setSkills] = useState(() => {
     const storedSkills = getData("skillTracker") || [];
-    // Ensure each skill has a learned property
-    const normalizedSkills = storedSkills.map(skill =>
+    return storedSkills.map(skill =>
       typeof skill === 'string'
         ? { name: skill, learned: false }
         : skill
     );
-    setSkills(normalizedSkills);
-  }, []);
+  });
+  const [newSkill, setNewSkill] = useState("");
+  const [filter, setFilter] = useState("all");
 
   const addSkill = () => {
     if (!newSkill.trim()) return;
-
     const skillExists = skills.some(skill => skill.name.toLowerCase() === newSkill.toLowerCase());
-    if (skillExists) {
-      alert("Skill already exists!");
-      return;
-    }
+    if (skillExists) return;
 
     const updatedSkills = [...skills, { name: newSkill.trim(), learned: false }];
     setSkills(updatedSkills);
@@ -55,136 +47,77 @@ export default function SkillTracker() {
   const learnedCount = skills.filter(skill => skill.learned).length;
   const progressPercentage = skills.length > 0 ? Math.round((learnedCount / skills.length) * 100) : 0;
 
-  const SkillCard = ({ skill }) => (
-    <div style={{
-      ...skillCardStyle,
-      background: skill.learned
-        ? "linear-gradient(135deg, var(--success-light) 0%, rgba(16, 185, 129, 0.05) 100%)"
-        : "linear-gradient(135deg, var(--danger-light) 0%, rgba(239, 68, 68, 0.05) 100%)",
-      border: skill.learned
-        ? "1px solid var(--success-light)"
-        : "1px solid var(--danger-light)"
-    }}>
-      <div style={skillContentStyle}>
-        <span style={skillNameStyle}>{skill.name}</span>
-        <span style={{
-          ...skillStatusStyle,
-          color: skill.learned ? "var(--success)" : "var(--danger)"
-        }}>
-          {skill.learned ? "✅ Learned" : "⏳ In Progress"}
-        </span>
-      </div>
-      <div style={skillActionsStyle}>
-        <button
-          onClick={() => toggleSkill(skill.name)}
-          style={{
-            ...actionButtonStyle,
-            backgroundColor: skill.learned ? "rgba(239, 68, 68, 0.1)" : "rgba(16, 185, 129, 0.1)",
-            color: skill.learned ? "#ef4444" : "#10b981"
-          }}
-        >
-          {skill.learned ? "Mark Unlearned" : "Mark Learned"}
-        </button>
-        <button
-          onClick={() => deleteSkill(skill.name)}
-          style={deleteButtonStyle}
-        >
-          🗑️
-        </button>
-      </div>
-    </div>
-  );
-
   return (
-    <div style={containerStyle}>
+    <div className="animate-fade-in container-full" style={trackerLayout}>
       <header style={headerStyle}>
-        <h1 style={titleStyle}>Skill Tracker</h1>
-        <p style={subtitleStyle}>Track your technical skills and mark them as learned when you're confident.</p>
+        <h1 className="glow-text" style={titleStyle}>Mastery Tracker</h1>
+        <p style={subtitleStyle}>Command your technical arsenal. Mark skills as mastered as you level up.</p>
       </header>
 
-      {/* Progress Overview */}
-      <div style={progressSectionStyle}>
-        <div style={progressCardStyle}>
-          <div style={progressHeaderStyle}>
-            <h3 style={progressTitleStyle}>Overall Progress</h3>
-            <span style={progressPercentageStyle}>{progressPercentage}%</span>
+      {/* Hero Progress */}
+      <section className="glass-card" style={progressCard}>
+        <div style={progressHeader}>
+          <div style={progressLabel}>
+            <span style={progressTitle}>Overall competence</span>
+            <span style={progressSub}>{learnedCount} of {skills.length} skills mastered</span>
           </div>
-          <div style={progressBarStyle}>
-            <div
-              style={{
-                ...progressFillStyle,
-                width: `${progressPercentage}%`
-              }}
-            />
-          </div>
-          <p style={progressTextStyle}>
-            {learnedCount} of {skills.length} skills learned
-          </p>
+          <span style={progressVal}>{progressPercentage}%</span>
         </div>
-      </div>
+        <div style={progressWrapper}>
+          <div style={progressBar(progressPercentage)}></div>
+        </div>
+      </section>
 
-      {/* Add Skill Section */}
-      <div style={addSkillSectionStyle}>
-        <h2 style={sectionTitleStyle}>Add New Skill</h2>
-        <div style={addSkillFormStyle}>
+      {/* Control Bar */}
+      <section style={controlBar}>
+        <div className="glass-card" style={inputGroup}>
           <input
             type="text"
-            placeholder="Enter skill name (e.g., React, Python, AWS)"
+            placeholder="Add new skill (e.g. System Design, Go)..."
+            style={inputStyle}
             value={newSkill}
             onChange={(e) => setNewSkill(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && addSkill()}
-            style={skillInputStyle}
           />
-          <button onClick={addSkill} style={addButtonStyle}>
-            Add Skill
-          </button>
+          <button onClick={addSkill} style={addBtn}>Deploy Skill</button>
         </div>
-      </div>
 
-      {/* Filter Section */}
-      <div style={filterSectionStyle}>
-        <h2 style={sectionTitleStyle}>Your Skills</h2>
-        <div style={filterButtonsStyle}>
-          <button
-            onClick={() => setFilter("all")}
-            style={filter === "all" ? activeFilterStyle : filterButtonStyle}
-          >
-            All ({skills.length})
-          </button>
-          <button
-            onClick={() => setFilter("learned")}
-            style={filter === "learned" ? activeFilterStyle : filterButtonStyle}
-          >
-            Learned ({learnedCount})
-          </button>
-          <button
-            onClick={() => setFilter("unlearned")}
-            style={filter === "unlearned" ? activeFilterStyle : filterButtonStyle}
-          >
-            In Progress ({skills.length - learnedCount})
-          </button>
+        <div style={filterGroup}>
+          {["all", "learned", "unlearned"].map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              style={filterBtn(filter === f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* Skills List */}
-      <div style={skillsGridStyle}>
+      {/* Grid */}
+      <div style={skillsGrid}>
         {filteredSkills.length === 0 ? (
-          <div style={emptyStateStyle}>
-            <div style={emptyIconStyle}>🎯</div>
-            <h3 style={emptyTitleStyle}>
-              {filter === "all" ? "No skills added yet" :
-               filter === "learned" ? "No learned skills yet" :
-               "No skills in progress"}
-            </h3>
-            <p style={emptyTextStyle}>
-              {filter === "all" ? "Start by adding your first skill above!" :
-               filter === "learned" ? "Mark some skills as learned to see them here." :
-               "Skills you haven't learned yet will appear here."}
-            </p>
-          </div>
+          <div style={emptyState}>No skills found in this sector.</div>
         ) : (
-          filteredSkills.map((skill, index) => (
-            <SkillCard key={skill.name} skill={skill} />
+          filteredSkills.map((skill) => (
+            <div key={skill.name} className="glass-card" style={skillCard(skill.learned)}>
+              <div style={skillInfo}>
+                <h4 style={skillName}>{skill.name}</h4>
+                <div style={statusTag(skill.learned)}>
+                  {skill.learned ? "Mastered" : "In Progress"}
+                </div>
+              </div>
+              <div style={skillActions}>
+                <button 
+                  onClick={() => toggleSkill(skill.name)} 
+                  style={skill.learned ? unlearnBtn : learnBtn}
+                >
+                  {skill.learned ? "Reset" : "Master"}
+                </button>
+                <button onClick={() => deleteSkill(skill.name)} style={delBtn}>🗑️</button>
+              </div>
+            </div>
           ))
         )}
       </div>
@@ -193,242 +126,209 @@ export default function SkillTracker() {
 }
 
 // Styles
-const containerStyle = {
+const trackerLayout = {
   maxWidth: "1000px",
   margin: "0 auto",
-  padding: "32px",
+  display: "flex",
+  flexDirection: "column",
+  gap: "40px",
 };
 
 const headerStyle = {
   textAlign: "center",
-  marginBottom: "40px",
 };
 
 const titleStyle = {
-  fontSize: "2.5rem",
-  fontWeight: "800",
-  background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
+  fontSize: "36px",
   marginBottom: "12px",
 };
 
 const subtitleStyle = {
-  color: "var(--text-secondary)",
-  fontSize: "1.1rem",
-  maxWidth: "600px",
-  margin: "0 auto",
+  color: "hsl(var(--text-dim))",
+  fontSize: "16px",
 };
 
-const progressSectionStyle = {
-  marginBottom: "40px",
+const progressCard = {
+  padding: "32px",
+  border: "1px solid hsla(var(--primary) / 0.15)",
 };
 
-const progressCardStyle = {
-  background: "linear-gradient(135deg, var(--primary-light) 0%, var(--primary-surface) 100%)",
-  backdropFilter: "blur(20px)",
-  borderRadius: "20px",
-  padding: "24px",
-  border: "1px solid var(--primary-light)",
+const progressHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "flex-end",
+  marginBottom: "20px",
 };
 
-const progressHeaderStyle = {
+const progressLabel = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "4px",
+};
+
+const progressTitle = {
+  fontSize: "14px",
+  fontWeight: "800",
+  textTransform: "uppercase",
+  letterSpacing: "0.1em",
+  color: "hsl(var(--text-muted))",
+};
+
+const progressSub = {
+  color: "hsl(var(--text-dim))",
+  fontSize: "14px",
+};
+
+const progressVal = {
+  fontSize: "32px",
+  fontWeight: "800",
+  color: "hsl(var(--accent))",
+  lineHeight: 1,
+};
+
+const progressWrapper = {
+  width: "100%",
+  height: "12px",
+  background: "hsla(var(--text-main) / 0.05)",
+  borderRadius: "10px",
+  overflow: "hidden",
+};
+
+const progressBar = (val) => ({
+  width: `${val}%`,
+  height: "100%",
+  background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))",
+  borderRadius: "10px",
+  boxShadow: "0 0 15px hsla(var(--primary-glow))",
+  transition: "var(--transition-spring)",
+});
+
+const controlBar = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: "16px",
-};
-
-const progressTitleStyle = {
-  fontSize: "1.2rem",
-  fontWeight: "600",
-  color: "var(--text)",
-  margin: 0,
-};
-
-const progressPercentageStyle = {
-  fontSize: "1.5rem",
-  fontWeight: "800",
-  color: "var(--primary)",
-};
-
-const progressBarStyle = {
-  width: "100%",
-  height: "8px",
-  backgroundColor: "var(--primary-light)",
-  borderRadius: "4px",
-  overflow: "hidden",
-  marginBottom: "12px",
-};
-
-const progressFillStyle = {
-  height: "100%",
-  background: "linear-gradient(90deg, var(--primary) 0%, var(--primary-mid) 100%)",
-  borderRadius: "4px",
-  transition: "width 0.3s ease",
-};
-
-const progressTextStyle = {
-  fontSize: "0.9rem",
-  color: "var(--text-secondary)",
-  margin: 0,
-  textAlign: "center",
-};
-
-const addSkillSectionStyle = {
-  marginBottom: "40px",
-};
-
-const sectionTitleStyle = {
-  fontSize: "1.5rem",
-  fontWeight: "700",
-  color: "var(--text)",
-  marginBottom: "16px",
-};
-
-const addSkillFormStyle = {
-  display: "flex",
-  gap: "12px",
-  alignItems: "center",
-};
-
-const skillInputStyle = {
-  flex: 1,
-  padding: "12px 16px",
-  borderRadius: "12px",
-  border: "1px solid var(--border)",
-  fontSize: "1rem",
-  outline: "none",
-  transition: "border-color 0.2s ease",
-  backgroundColor: "var(--bg-surface)",
-  color: "var(--text)",
-};
-
-const addButtonStyle = {
-  padding: "12px 24px",
-  background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%)",
-  color: "white",
-  border: "none",
-  borderRadius: "12px",
-  fontSize: "1rem",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "transform 0.2s ease",
-};
-
-const filterSectionStyle = {
-  marginBottom: "24px",
-};
-
-const filterButtonsStyle = {
-  display: "flex",
-  gap: "8px",
+  gap: "24px",
   flexWrap: "wrap",
 };
 
-const filterButtonStyle = {
-  padding: "8px 16px",
-  backgroundColor: "var(--bg-surface)",
-  border: "1px solid var(--border)",
-  borderRadius: "8px",
-  fontSize: "0.9rem",
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-  color: "var(--text)",
+const inputGroup = {
+  flex: 1,
+  minWidth: "300px",
+  display: "flex",
+  padding: "8px 8px 8px 20px",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--border-glass))",
 };
 
-const activeFilterStyle = {
-  ...filterButtonStyle,
-  background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%)",
+const inputStyle = {
+  flex: 1,
+  background: "none",
+  border: "none",
   color: "white",
-  borderColor: "var(--primary)",
+  fontSize: "15px",
+  outline: "none",
 };
 
-const skillsGridStyle = {
+const addBtn = {
+  background: "hsl(var(--primary))",
+  color: "white",
+  border: "none",
+  padding: "10px 24px",
+  borderRadius: "100px",
+  fontWeight: "700",
+  fontSize: "14px",
+  cursor: "pointer",
+  transition: "var(--transition-spring)",
+};
+
+const filterGroup = {
+  display: "flex",
+  gap: "8px",
+};
+
+const filterBtn = (active) => ({
+  padding: "10px 18px",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--border-glass))",
+  background: active ? "hsl(var(--primary))" : "hsla(var(--bg-glass))",
+  color: active ? "white" : "hsl(var(--text-dim))",
+  fontSize: "13px",
+  fontWeight: "700",
+  cursor: "pointer",
+  transition: "var(--transition-smooth)",
+});
+
+const skillsGrid = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))",
-  gap: "16px",
+  gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+  gap: "20px",
 };
 
-const skillCardStyle = {
-  backdropFilter: "blur(15px)",
-  borderRadius: "16px",
-  padding: "20px",
+const skillCard = (learned) => ({
+  padding: "24px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+  border: `1px solid ${learned ? 'hsla(var(--success) / 0.3)' : 'hsla(var(--border-glass))'}`,
+  transition: "var(--transition-spring)",
+  boxShadow: learned ? "0 0 20px -10px hsla(var(--success) / 0.3)" : "none",
+});
+
+const skillInfo = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "6px",
 };
 
-const skillContentStyle = {
-  flex: 1,
+const skillName = {
+  fontSize: "18px",
+  fontWeight: "700",
 };
 
-const skillNameStyle = {
-  fontSize: "1.1rem",
-  fontWeight: "600",
-  color: "var(--text)",
-  display: "block",
-  marginBottom: "4px",
-};
+const statusTag = (learned) => ({
+  fontSize: "11px",
+  fontWeight: "800",
+  textTransform: "uppercase",
+  color: learned ? "hsl(var(--success))" : "hsl(var(--warning))",
+});
 
-const skillStatusStyle = {
-  fontSize: "0.85rem",
-  fontWeight: "500",
-};
-
-const skillActionsStyle = {
+const skillActions = {
   display: "flex",
   gap: "8px",
-  alignItems: "center",
 };
 
-const actionButtonStyle = {
-  padding: "6px 12px",
+const learnBtn = {
+  padding: "8px 16px",
+  borderRadius: "8px",
   border: "none",
-  borderRadius: "8px",
-  fontSize: "0.8rem",
-  fontWeight: "500",
+  background: "hsla(var(--success) / 0.1)",
+  color: "hsl(var(--success))",
+  fontSize: "12px",
+  fontWeight: "700",
   cursor: "pointer",
-  transition: "all 0.2s ease",
 };
 
-const deleteButtonStyle = {
-  padding: "6px 8px",
-  backgroundColor: "var(--danger-light)",
-  border: "1px solid var(--danger-light)",
+const unlearnBtn = {
+  padding: "8px 16px",
   borderRadius: "8px",
-  color: "var(--danger)",
+  border: "none",
+  background: "hsla(var(--text-muted) / 0.1)",
+  color: "hsl(var(--text-dim))",
+  fontSize: "12px",
+  fontWeight: "700",
   cursor: "pointer",
-  fontSize: "0.9rem",
-  transition: "all 0.2s ease",
 };
 
-const emptyStateStyle = {
+const delBtn = {
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  opacity: 0.5,
+};
+
+const emptyState = {
   gridColumn: "1 / -1",
   textAlign: "center",
-  padding: "60px 20px",
-  background: "linear-gradient(135deg, var(--bg-tinted) 0%, var(--primary-surface) 100%)",
-  backdropFilter: "blur(15px)",
-  borderRadius: "20px",
-  border: "1px solid var(--border)",
-};
-
-const emptyIconStyle = {
-  fontSize: "4rem",
-  marginBottom: "16px",
-};
-
-const emptyTitleStyle = {
-  fontSize: "1.3rem",
-  fontWeight: "600",
-  color: "var(--text-secondary)",
-  marginBottom: "8px",
-};
-
-const emptyTextStyle = {
-  color: "var(--text-muted)",
-  fontSize: "1rem",
-  maxWidth: "400px",
-  margin: "0 auto",
+  padding: "60px",
+  color: "hsl(var(--text-muted))",
 };

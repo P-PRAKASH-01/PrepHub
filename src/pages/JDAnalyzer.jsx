@@ -10,7 +10,7 @@ export default function JDAnalyzer() {
   const [error, setError] = useState(null);
 
   const handleAnalyze = async () => {
-    if (!jdText.trim()) return alert("Please paste a Job Description first!");
+    if (!jdText.trim()) return;
     
     setLoading(true);
     setError(null);
@@ -27,13 +27,12 @@ export default function JDAnalyzer() {
   };
 
   const handleAddAllToTracker = () => {
-    // Flatten skills from all categories for the general tracker
     const allSkills = Array.isArray(skills) 
       ? skills 
       : Object.values(skills).flat();
       
     const existing = getData("skillTracker") || [];
-    const newSkills = [...new Set([...existing, ...allSkills])];
+    const newSkills = [...new Set([...existing, ...allSkills.map(s => typeof s === 'string' ? { name: s, learned: false } : s)])];
     saveData("skillTracker", newSkills);
     alert("All skills added to your general tracker!");
   };
@@ -42,98 +41,110 @@ export default function JDAnalyzer() {
     if (!companyName.trim()) return alert("Please enter a company name!");
     
     const trackers = getData("companyTrackers") || {};
-    const existingData = trackers[companyName] || {};
     
-    let updatedData;
-    if (Array.isArray(skills)) {
-      // Legacy support: if skills is an array, merge into a "General" category
-      const existingSkills = Array.isArray(existingData) ? existingData : (existingData["General"] || []);
-      updatedData = [...new Set([...existingSkills, ...skills])];
-    } else {
-      // Modern Categorized format
-      updatedData = { ...existingData };
-      Object.entries(skills).forEach(([category, list]) => {
-        updatedData[category] = [...new Set([...(updatedData[category] || []), ...list])];
-      });
-    }
+    // Ensure we don't overwrite metadata if company already exists
+    const existingCompany = trackers[companyName] || {
+      name: companyName,
+      role: "AI Analyzed Position",
+      skills: [],
+      addedDate: new Date().toISOString()
+    };
     
-    trackers[companyName] = updatedData;
+    // Extract and flatten skills from the AI response
+    const newSkillsFromJD = Array.isArray(skills) 
+      ? skills 
+      : Object.values(skills).flat();
+    
+    // Merge Skills and deduplicate
+    existingCompany.skills = [...new Set([...(existingCompany.skills || []), ...newSkillsFromJD])];
+    
+    trackers[companyName] = existingCompany;
     saveData("companyTrackers", trackers);
+
+    // Sync to global skill tracker
+    const globalSkills = getData("skillTracker") || [];
+    const updatedGlobal = [...globalSkills];
+    newSkillsFromJD.forEach(sName => {
+      const name = typeof sName === 'string' ? sName : sName.name;
+      if (!updatedGlobal.find(g => g.name.toLowerCase() === name.toLowerCase())) {
+        updatedGlobal.push({ name, learned: false });
+      }
+    });
+    saveData("skillTracker", updatedGlobal);
+
     alert(`Skills added to ${companyName} tracker!`);
   };
 
-  // Helper to check if skills is empty (works for both [] and {})
   const hasSkills = Array.isArray(skills) ? skills.length > 0 : Object.keys(skills).length > 0;
 
   return (
-    <div style={containerStyle}>
+    <div className="animate-fade-in container-full" style={analyzerLayout}>
+      {/* Header */}
       <header style={headerStyle}>
-        <h1 style={titleStyle}>JD Analyzer</h1>
-        <p style={subtitleStyle}>Extract and categorize required skills automatically using AI.</p>
+        <h1 className="glow-text" style={titleStyle}>Analyzer</h1>
+        <p style={subtitleStyle}>Extract required skills from any job description.</p>
       </header>
 
-      <section style={inputSectionStyle}>
-        <label style={labelStyle}>Paste Job Description</label>
+      {/* Input Zone */}
+      <section className="glass-card" style={loading ? {...inputZone, animation: 'pulse-glow 2s infinite'} : inputZone}>
+        <div style={inputHeader}>
+          <label style={labelStyle}>Job Description Content</label>
+          {loading && <div style={loaderTag}>AI Processing...</div>}
+        </div>
         <textarea
           style={textareaStyle}
-          placeholder="Paste the full job description here..."
+          placeholder="Paste requirements, description, or role overview here..."
           value={jdText}
           onChange={(e) => setJdText(e.target.value)}
+          disabled={loading}
         />
         <button 
-          style={loading ? {...buttonStyle, opacity: 0.7, cursor: 'not-allowed'} : buttonStyle} 
+          style={loading ? {...actionBtn, opacity: 0.5, cursor: 'not-allowed'} : actionBtn} 
           onClick={handleAnalyze}
           disabled={loading}
         >
-          {loading ? "Analyzing & Categorizing..." : "Analyze Job Description"}
+          {loading ? "Analyzing..." : "Analyze Description"}
         </button>
         {error && <p style={errorStyle}>{error}</p>}
       </section>
 
-      {hasSkills && (
-        <section style={resultsSectionStyle}>
-          <h2 style={sectionTitleStyle}>Extracted & Categorized Skills</h2>
-          
-          {Array.isArray(skills) ? (
-            // Legacy rendering for old data
-            <div style={tagContainerStyle}>
-              {skills.map((skill, index) => (
-                <span key={index} style={tagStyle}>{skill}</span>
-              ))}
+      {/* Results Board */}
+      {hasSkills && !loading && (
+        <section className="animate-fade-in" style={resultsBoard}>
+          <div style={resultsHeader}>
+            <h2 style={resultsTitle}>Extracted Skills</h2>
+            <div style={headerActions}>
+               <button style={secBtn} onClick={handleAddAllToTracker}>
+                 Quick Add to Tracker
+               </button>
             </div>
-          ) : (
-            // Modern grouped rendering
-            Object.entries(skills).map(([category, list]) => (
-              <div key={category} style={{ marginBottom: "30px" }}>
-                <h3 style={categoryHeaderStyle}>{category}</h3>
-                <div style={tagContainerStyle}>
+          </div>
+          
+          <div style={categoriesGrid}>
+            {!Array.isArray(skills) && Object.entries(skills).map(([category, list]) => (
+              <div key={category} className="glass-card" style={categoryCard}>
+                <h3 style={categoryTitle}>{category}</h3>
+                <div style={skillList}>
                   {list.map((skill, index) => (
-                    <span key={index} style={tagStyle}>{skill}</span>
+                    <span key={index} style={skillTag}>{skill}</span>
                   ))}
                 </div>
               </div>
-            ))
-          )}
+            ))}
+          </div>
 
-          <div style={actionsContainerStyle}>
-            <div style={actionGroupStyle}>
-              <button style={secondaryButtonStyle} onClick={handleAddAllToTracker}>
-                Add All to My Tracker
-              </button>
-            </div>
-            
-            <div style={{...actionGroupStyle, borderTop: '1px solid var(--border)', paddingTop: '20px'}}>
-              <input 
+          {/* Quick Integration Footer */}
+          <div className="glass-card" style={integrationFooter}>
+             <input 
                 type="text" 
-                placeholder="Enter Company Name" 
-                style={inputStyle}
+                placeholder="Company Name (e.g. Google, Meta)" 
+                style={footerInput}
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
               />
-              <button style={primaryButtonStyle} onClick={handleAddToCompanyTracker}>
+              <button style={priBtn} onClick={handleAddToCompanyTracker}>
                 Add to Company Tracker
               </button>
-            </div>
           </div>
         </section>
       )}
@@ -141,173 +152,193 @@ export default function JDAnalyzer() {
   );
 }
 
-// PREMIUM STYLES (Vanilla CSS)
-const containerStyle = {
-  maxWidth: "900px",
-  margin: "40px auto",
-  padding: "40px",
-  backgroundColor: "rgba(255, 255, 255, 0.8)",
-  backdropFilter: "blur(10px)",
-  borderRadius: "24px",
-  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.05)",
-  border: "1px solid rgba(79, 70, 229, 0.1)",
-  fontFamily: "'Inter', sans-serif",
+// Styles
+const analyzerLayout = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "32px",
 };
 
 const headerStyle = {
   textAlign: "center",
-  marginBottom: "32px",
+  marginBottom: "12px",
 };
 
 const titleStyle = {
-  fontSize: "2.5rem",
-  fontWeight: "800",
-  background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-mid) 100%)",
-  WebkitBackgroundClip: "text",
-  WebkitTextFillColor: "transparent",
+  fontSize: "36px",
   marginBottom: "12px",
 };
 
 const subtitleStyle = {
-  color: "var(--text-secondary)",
-  fontSize: "1.1rem",
-  maxWidth: "600px",
-  margin: "0 auto",
+  color: "hsl(var(--text-dim))",
+  fontSize: "16px",
 };
 
-const inputSectionStyle = {
+const inputZone = {
+  padding: "32px",
   display: "flex",
   flexDirection: "column",
-  gap: "16px",
-  marginBottom: "40px",
+  gap: "20px",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const inputHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
 };
 
 const labelStyle = {
-  fontSize: "0.95rem",
-  fontWeight: "600",
-  color: "#1e293b",
+  fontSize: "12px",
+  fontWeight: "700",
+  textTransform: "uppercase",
+  letterSpacing: "0.1em",
+  color: "hsl(var(--text-muted))",
+};
+
+const loaderTag = {
+  fontSize: "12px",
+  fontWeight: "800",
+  padding: "4px 12px",
+  background: "hsla(var(--accent) / 0.1)",
+  color: "hsl(var(--accent))",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--accent) / 0.3)",
 };
 
 const textareaStyle = {
   width: "100%",
-  minHeight: "250px",
-  padding: "20px",
+  minHeight: "280px",
+  padding: "24px",
   borderRadius: "16px",
-  border: "2px solid #e2e8f0",
-  fontSize: "1rem",
+  border: "1px solid hsla(var(--border-glass))",
+  background: "hsla(var(--bg-page) / 0.5)",
+  color: "white",
+  fontSize: "15px",
   lineHeight: "1.6",
-  transition: "all 0.2s ease",
   outline: "none",
   resize: "vertical",
-  backgroundColor: "var(--bg-page)",
-  boxSizing: 'border-box'
+  transition: "var(--transition-smooth)",
+  fontFamily: "inherit",
 };
 
-const buttonStyle = {
-  padding: "16px 32px",
-  borderRadius: "12px",
+const actionBtn = {
+  padding: "18px",
+  borderRadius: "14px",
   border: "none",
-  backgroundColor: "#4f46e5",
+  background: "hsl(var(--primary))",
   color: "white",
-  fontSize: "1rem",
-  fontWeight: "600",
-  cursor: "pointer",
-  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.2)",
-};
-
-const resultsSectionStyle = {
-  marginTop: "40px",
-  paddingTop: "40px",
-  borderTop: "1px solid #f1f5f9",
-};
-
-const sectionTitleStyle = {
-  fontSize: "1.5rem",
   fontWeight: "700",
-  color: "#1e293b",
-  marginBottom: "24px",
+  fontSize: "16px",
+  cursor: "pointer",
+  boxShadow: "0 10px 20px -5px hsla(var(--primary-glow))",
+  transition: "var(--transition-spring)",
 };
 
-const categoryHeaderStyle = {
-  fontSize: "1.1rem",
-  fontWeight: "600",
-  color: "#4f46e5",
-  marginBottom: "12px",
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-};
-
-const tagContainerStyle = {
-  display: "flex",
-  flexWrap: "wrap",
-  gap: "10px",
-  marginBottom: "40px",
-};
-
-const tagStyle = {
-  padding: "8px 16px",
-  backgroundColor: "var(--primary-light)",
-  color: "var(--primary)",
-  borderRadius: "100px",
-  fontSize: "0.9rem",
-  fontWeight: "600",
-  border: "1px solid #dee1ff",
-  animation: "fadeIn 0.5s ease backwards",
-};
-
-const actionsContainerStyle = {
+const resultsBoard = {
+  marginTop: "24px",
   display: "flex",
   flexDirection: "column",
   gap: "24px",
-  background: "#fdfdff",
-  padding: "24px",
-  borderRadius: "20px",
-  border: "1px solid #f1f5f9",
 };
 
-const actionGroupStyle = {
+const resultsHeader = {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  padding: "0 8px",
+};
+
+const resultsTitle = {
+  fontSize: "24px",
+  fontWeight: "800",
+};
+
+const headerActions = {
   display: "flex",
   gap: "12px",
+};
+
+
+const categoriesGrid = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
+  gap: "24px",
+};
+
+const categoryCard = {
+  padding: "24px",
+  border: "1px solid hsla(var(--border-glass))",
+};
+
+const categoryTitle = {
+  fontSize: "14px",
+  fontWeight: "800",
+  textTransform: "uppercase",
+  letterSpacing: "0.1em",
+  color: "hsl(var(--accent))",
+  marginBottom: "20px",
+};
+
+const skillList = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "10px",
+};
+
+const skillTag = {
+  padding: "8px 16px",
+  background: "hsla(var(--text-main) / 0.05)",
+  color: "hsl(var(--text-dim))",
+  borderRadius: "100px",
+  fontSize: "13px",
+  fontWeight: "600",
+  border: "1px solid hsla(var(--border-glass))",
+  transition: "var(--transition-smooth)",
+};
+
+const integrationFooter = {
+  display: "flex",
+  gap: "16px",
+  padding: "24px",
   alignItems: "center",
   flexWrap: "wrap",
 };
 
-const inputStyle = {
+const footerInput = {
   flex: 1,
-  minWidth: "200px",
-  padding: "12px 16px",
-  borderRadius: "10px",
-  border: "1px solid #e2e8f0",
-  fontSize: "0.95rem",
+  minWidth: "250px",
+  padding: "14px",
+  borderRadius: "12px",
+  border: "1px solid hsla(var(--border-glass))",
+  background: "hsla(var(--bg-page) / 0.5)",
+  color: "white",
   outline: "none",
 };
 
-const primaryButtonStyle = {
-  padding: "12px 24px",
-  borderRadius: "10px",
+const priBtn = {
+  padding: "14px 24px",
+  borderRadius: "12px",
   border: "none",
-  backgroundColor: "#4f46e5",
+  background: "hsl(var(--primary))",
   color: "white",
-  fontSize: "0.95rem",
-  fontWeight: "600",
+  fontWeight: "700",
   cursor: "pointer",
 };
 
-const secondaryButtonStyle = {
-  padding: "12px 24px",
-  borderRadius: "10px",
-  border: "1px solid #4f46e5",
-  backgroundColor: "transparent",
-  color: "#4f46e5",
-  fontSize: "0.95rem",
-  fontWeight: "600",
+const secBtn = {
+  padding: "10px 20px",
+  borderRadius: "100px",
+  border: "1px solid hsla(var(--primary) / 0.5)",
+  background: "hsla(var(--primary) / 0.1)",
+  color: "white",
+  fontSize: "12px",
+  fontWeight: "700",
   cursor: "pointer",
 };
 
 const errorStyle = {
-  color: "#ef4444",
-  fontSize: "0.9rem",
-  marginTop: "8px",
-  fontWeight: "500",
+  color: "hsl(var(--danger))",
+  textAlign: "center",
+  fontSize: "14px",
 };

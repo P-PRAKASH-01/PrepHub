@@ -59,14 +59,14 @@ export async function extractSkills(jdText) {
           }
         });
         return filtered;
-      } catch (e) {
+      } catch {
         console.warn("Category parsing failed, falling back to flat list");
       }
     }
     
     // Fallback if no valid category object is found
     const fallbackList = text.split(/\n/g)
-      .map(s => s.trim().replace(/^[\-\*\d\.]+\s*/, ""))
+      .map(s => s.trim().replace(/^[-*\d.]+\s*/, ""))
       .filter(s => s.length > 3 && s.length < 50);
     
     return { "General Skills": fallbackList };

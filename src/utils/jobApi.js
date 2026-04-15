@@ -15,7 +15,7 @@ export async function searchJobs({ role = "", location = "", page = 1 }) {
     try {
       const errorData = await response.json();
       errorDetail = errorData.error || response.statusText;
-    } catch (e) {
+    } catch {
       errorDetail = response.statusText;
     }
     console.error("Adzuna API Error:", response.status, errorDetail);
