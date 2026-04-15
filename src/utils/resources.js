@@ -740,10 +740,300 @@ export const skillResources = {
   ]
 };
 
-export function getResourcesForSkill(skill) {
-  return skillResources[skill] || [];
+export const skillAliases = {
+  "JavaScript": ["javascript", "js", "ecmascript", "vanilla javascript"],
+  "Python": ["python", "py", "python programming"],
+  "Java": ["java", "java programming"],
+  "C++": ["c++", "cpp", "c plus plus"],
+  "TypeScript": ["typescript", "ts"],
+  "React": ["react", "react.js", "reactjs", "facebook react"],
+  "Node.js": ["node.js", "nodejs", "node", "server-side javascript"],
+  "HTML": ["html", "html5", "markup language"],
+  "CSS": ["css", "css3", "stylesheet", "styling"],
+  "SQL": ["sql", "structured query language", "database query"],
+  "MongoDB": ["mongodb", "mongo", "nosql database"],
+  "AWS": ["aws", "amazon web services", "amazon cloud"],
+  "Docker": ["docker", "containerization", "containers"],
+  "Kubernetes": ["kubernetes", "k8s"],
+  "Machine Learning": ["machine learning", "ml", "supervised learning", "unsupervised learning"],
+  "Data Analysis": ["data analysis", "data analytics", "analytics"],
+  "Git": ["git", "version control", "source control"],
+  "REST APIs": ["rest apis", "rest", "restful apis", "api development"],
+  "C": ["c programming", "c language"],
+  "Go": ["go", "golang"],
+  "Rust": ["rust", "rust programming"],
+  "Angular": ["angular", "angularjs"],
+  "Vue.js": ["vue.js", "vuejs", "vue"],
+  "Express.js": ["express.js", "expressjs", "express"],
+  "Next.js": ["next.js", "nextjs", "next"],
+  "MySQL": ["mysql", "relational database"],
+  "PostgreSQL": ["postgresql", "postgres", "relational database"],
+  "Firebase": ["firebase", "google firebase"],
+  "Redis": ["redis", "in-memory cache", "caching"],
+  "Microsoft Azure": ["azure", "microsoft azure"],
+  "Google Cloud Platform": ["gcp", "google cloud", "google cloud platform"],
+  "CI/CD": ["ci/cd", "continuous integration", "continuous deployment", "devops pipeline"],
+  "Jenkins": ["jenkins", "continuous integration server"],
+  "Deep Learning": ["deep learning", "neural networks"],
+  "Data Visualization": ["data visualization", "visualization"],
+  "Pandas": ["pandas", "data manipulation"],
+  "NumPy": ["numpy", "numerical computing"],
+  "TensorFlow": ["tensorflow", "machine learning framework"],
+  "Scikit-learn": ["scikit-learn", "sklearn", "machine learning library"],
+  "Data Structures": ["data structures", "dsa", "algorithms and data structures"],
+  "Algorithms": ["algorithms", "algorithm design"],
+  "Operating Systems": ["operating systems", "os"],
+  "Computer Networks": ["computer networks", "networking", "network protocols"],
+  "Database Management Systems": ["dbms", "database management systems", "database design"],
+  "GitHub": ["github", "git repository", "version control platform"],
+  "GraphQL": ["graphql", "query language"],
+  "Postman": ["postman", "api testing"],
+  "Communication": ["communication", "soft skills", "professional communication"],
+  "Problem Solving": ["problem solving", "analytical problem solving", "critical thinking", "problem solving skills"],
+  "Team Collaboration": ["team collaboration", "teamwork", "collaboration", "working in teams"],
+  "WebSockets": ["websockets", "websocket", "real-time communication"],
+  "Microservices Architecture": ["microservices", "microservices architecture"],
+  "Serverless Architecture": ["serverless", "serverless computing"],
+  "Web Performance Optimization": ["web performance", "performance optimization", "site speed"],
+  "Progressive Web Apps": ["pwa", "progressive web apps"],
+  "Natural Language Processing": ["nlp", "natural language processing"],
+  "Computer Vision": ["computer vision", "image processing"],
+  "Generative AI": ["generative ai", "gen ai"],
+  "Prompt Engineering": ["prompt engineering", "prompt design"],
+  "MLOps": ["mlops", "machine learning operations"],
+  "Cybersecurity Fundamentals": ["cybersecurity", "security fundamentals", "information security"],
+  "OAuth / JWT Authentication": ["oauth", "jwt", "authentication", "json web token"],
+  "Web Security": ["web security", "application security"],
+  "Encryption Basics": ["encryption", "cryptography", "data encryption"],
+  "Android Development": ["android", "android development"],
+  "iOS Development": ["ios", "ios development", "apple development"],
+  "Flutter": ["flutter", "flutter development"],
+  "React Native": ["react native", "mobile development"],
+  "System Design": ["system design", "architecture design", "scalable systems"],
+  "API Design": ["api design", "rest api design"],
+  "Caching Strategies": ["caching", "cache strategies"],
+  "Load Balancing": ["load balancing", "balancing"],
+  "Message Queues": ["message queues", "kafka", "message broker"],
+  "Product Thinking": ["product thinking", "product management"],
+  "A/B Testing": ["a/b testing", "ab testing"],
+  "Business Analytics": ["business analytics", "analytics"],
+  "Excel": ["excel", "spreadsheets", "microsoft excel"],
+  "Unit Testing": ["unit testing", "unit tests"],
+  "Integration Testing": ["integration testing", "integration tests"],
+  "Selenium Testing": ["selenium", "automated testing"],
+  "Linux": ["linux", "unix", "operating system"],
+  "Bash / Shell Scripting": ["bash", "shell scripting", "scripting"],
+  "LLM Integration": ["llm integration", "large language models", "llm"],
+  "AI Agents": ["ai agents", "intelligent agents"],
+  "RAG": ["rag", "retrieval augmented generation"],
+  "Vector Databases": ["vector databases", "vector db"],
+  "LangChain": ["langchain", "langchain framework"],
+  "Prompt Optimization": ["prompt optimization", "prompt tuning"],
+  "Edge Computing": ["edge computing", "edge"],
+  "Observability": ["observability", "monitoring and logging"],
+  "Infrastructure as Code": ["infrastructure as code", "iac", "terraform"],
+  "Clean Architecture": ["clean architecture", "software architecture"],
+  "Domain-Driven Design": ["domain driven design", "ddd"],
+  "Event-Driven Architecture": ["event driven", "event-driven architecture"],
+  "Zero Trust Security": ["zero trust", "zero trust security"],
+  "Data Engineering": ["data engineering", "data pipelines"],
+  "ETL Pipelines": ["etl", "etl pipelines", "data pipelines"],
+  "Web Accessibility": ["web accessibility", "accessibility", "a11y"],
+  "State Management": ["state management", "redux"],
+  "Monorepo": ["monorepo", "monolithic repository"],
+  "Build Tools": ["build tools", "webpack", "vite", "bundlers"],
+  "Testing Frameworks": ["testing frameworks", "unit testing", "e2e testing"],
+  "Fine-tuning LLMs": ["fine-tuning", "fine-tuning llms"],
+  "Embeddings": ["embeddings", "vector embeddings"],
+  "Model Evaluation": ["model evaluation", "performance metrics"],
+  "AI Safety": ["ai safety", "responsible ai"],
+  "Multimodal AI": ["multimodal", "multimodal ai"],
+  "Service Mesh": ["service mesh", "istio"],
+  "Secrets Management": ["secrets management", "vault"],
+  "Monitoring Tools": ["monitoring", "prometheus", "grafana"],
+  "Rate Limiting": ["rate limiting", "throttling"],
+  "Background Jobs": ["background jobs", "task queues"],
+  "File Storage Systems": ["file storage", "s3", "cloud storage"],
+  "SSR / SSG": ["ssr", "ssg", "server-side rendering", "static site generation"],
+  "Web Animations": ["web animations", "animations"],
+  "Browser Internals": ["browser internals", "how browsers work"],
+  "SEO Fundamentals": ["seo", "search engine optimization"],
+  "Data Warehousing": ["data warehousing", "data warehouse"],
+  "Streaming Systems": ["streaming", "stream processing"],
+  "Data Modeling": ["data modeling", "model design"],
+  "Agile / Scrum": ["agile", "scrum", "agile methodology", "sprint"],
+  "Debugging Skills": ["debugging", "debug"],
+  "Code Optimization": ["code optimization", "optimization"],
+  "Resume Building": ["resume", "resume writing", "cv"],
+  "Behavioral Interviews": ["behavioral interviews", "interview preparation"],
+  "System Design Interviews": ["system design interviews", "design interview"],
+};
+
+/**
+ * Calculate similarity between two strings for fuzzy matching fallback
+ * Uses basic Levenshtein-like approach for efficiency
+ * @param {string} str1 
+ * @param {string} str2 
+ * @returns {number} Similarity score (0-1, higher is more similar)
+ */
+function calculateStringSimilarity(str1, str2) {
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
+  
+  if (longer.length === 0) return 1.0;
+  
+  const editDistance = getEditDistance(longer, shorter);
+  return (longer.length - editDistance) / longer.length;
 }
 
+/**
+ * Calculate edit distance between two strings
+ * @param {string} s1 - First string
+ * @param {string} s2 - Second string
+ * @returns {number} Edit distance
+ */
+function getEditDistance(s1, s2) {
+  const costs = [];
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) {
+        costs[j] = j;
+      } else if (j > 0) {
+        let newValue = costs[j - 1];
+        if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+          newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+        }
+        costs[j - 1] = lastValue;
+        lastValue = newValue;
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+}
+
+/**
+ * Normalize a skill string and match it to a base skill key
+ * Tries exact matches first, then partial matches, then fuzzy matching
+ * @param {string} skill - The skill to normalize
+ * @returns {string} The matched base skill key or original skill if no match found
+ */
+export function normalizeSkill(skill) {
+  if (!skill || typeof skill !== "string") return skill;
+
+  const normalizedInput = skill.toLowerCase().trim();
+
+  for (const [baseSkill, aliases] of Object.entries(skillAliases)) {
+    if (aliases.includes(normalizedInput)) {
+      return baseSkill;
+    }
+  }
+
+  for (const [baseSkill, aliases] of Object.entries(skillAliases)) {
+    for (const alias of aliases) {
+      if (normalizedInput.includes(alias) || alias.includes(normalizedInput)) {
+        return baseSkill;
+      }
+    }
+  }
+
+  let bestMatch = skill;
+  let bestScore = 0.7; 
+
+  for (const [baseSkill, aliases] of Object.entries(skillAliases)) {
+    for (const alias of aliases) {
+      const similarity = calculateStringSimilarity(normalizedInput, alias);
+      if (similarity > bestScore) {
+        bestScore = similarity;
+        bestMatch = baseSkill;
+      }
+    }
+  }
+
+  return bestMatch;
+}
+
+/**
+ * Get resources for a single skill with normalization
+ * Now handles skill variations and aliases
+ * @param {string} skill - The skill name (can be a variation)
+ * @returns {Array} Array of resources for the skill
+ */
+export function getResourcesForSkill(skill) {
+  const normalizedSkill = normalizeSkill(skill);
+  return skillResources[normalizedSkill] || [];
+}
+
+/**
+ * Get resources for multiple skills
+ * Returns a map of normalized skills to their resources
+ * Handles duplicates by ensuring each base skill appears only once
+ * @param {string[]} skills - Array of skill names
+ * @returns {Object} Object mapping base skill names to resources
+ */
+export function getResourcesForSkills(skills) {
+  if (!Array.isArray(skills)) return {};
+
+  const resourceMap = {};
+  const processedSkills = new Set();
+
+  for (const skill of skills) {
+    const normalizedSkill = normalizeSkill(skill);
+
+    if (!processedSkills.has(normalizedSkill)) {
+      const resources = skillResources[normalizedSkill];
+      if (resources) {
+        resourceMap[normalizedSkill] = resources;
+        processedSkills.add(normalizedSkill);
+      }
+    }
+  }
+
+  return resourceMap;
+}
+
+/**
+ * Get all available base skills
+ * @returns {string[]} Array of all base skill keys
+ */
 export function getAllSkillsWithResources() {
   return Object.keys(skillResources);
+}
+
+/**
+ * Get all available skill variations/aliases
+ * Useful for UI autocomplete or validation
+ * @returns {string[]} Sorted array of all skill aliases
+ */
+export function getAllSkillAliases() {
+  const allAliases = [];
+  for (const aliases of Object.values(skillAliases)) {
+    allAliases.push(...aliases);
+  }
+  return [...new Set(allAliases)].sort();
+}
+
+/**
+ * Batch find best matches for skills (useful for resume parsing)
+ * Returns array of normalized skills with confidence scores
+ * @param {string[]} skills - Array of skill names to match
+ * @returns {Array} Array of {skill, normalized, confidence} objects
+ */
+export function findBestSkillMatches(skills) {
+  if (!Array.isArray(skills)) return [];
+
+  return skills
+    .map((skill) => {
+      const originalSkill = skill;
+      const normalizedSkill = normalizeSkill(skill);
+      const isExactMatch = normalizedSkill !== skill;
+
+      return {
+        original: originalSkill,
+        normalized: normalizedSkill,
+        confidence: isExactMatch ? "high" : "medium",
+      };
+    })
+    .filter((item) => skillResources[item.normalized]);
 }
